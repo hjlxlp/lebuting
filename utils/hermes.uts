@@ -1,0 +1,94 @@
+const HERMES_HOST = import.meta.env.VITE_HERMES_HOST as string
+const HERMES_PORT = import.meta.env.VITE_HERMES_PORT as string
+export const HERMES_API_KEY = import.meta.env.VITE_HERMES_API_KEY as string
+export const HERMES_MODEL = 'hermes-agent'
+
+// #ifdef H5
+export const HERMES_BASE_URL = '/hermes-api'
+// #endif
+// #ifndef H5
+export const HERMES_BASE_URL = 'http://' + HERMES_HOST + ':' + HERMES_PORT
+// #endif
+
+export type ChatMessage = {
+	role: string
+	content: string
+}
+
+type HealthResponse = {
+	status: string
+	platform: string
+	version: string
+}
+
+type ChatCompletionResponse = {
+	choices: ChatChoice[]
+}
+
+type ChatChoice = {
+	message: ChatMessage
+}
+
+function getAuthHeader(): UTSJSONObject {
+	return {
+		'Content-Type': 'application/json',
+		'Authorization': 'Bearer ' + HERMES_API_KEY
+	} as UTSJSONObject
+}
+
+function buildChatBody(messages: ChatMessage[]): string {
+	const parts: string[] = []
+	for (let i = 0; i < messages.length; i++) {
+		const msg = messages[i]
+		parts.push('{"role":"' + msg.role + '","content":' + JSON.stringify(msg.content) + '}')
+	}
+	return '{"model":"' + HERMES_MODEL + '","messages":[' + parts.join(',') + ']}'
+}
+
+export function checkHealth(): Promise<string> {
+	return new Promise((resolve, reject) => {
+		uni.request<HealthResponse>({
+			url: HERMES_BASE_URL + '/health',
+			method: 'GET',
+			timeout: 10000,
+			success: (res) => {
+				if (res.statusCode == 200 && res.data != null) {
+					const data = res.data!
+					resolve(data.platform + ' v' + data.version)
+				} else {
+					reject('健康检查失败: ' + res.statusCode)
+				}
+			},
+			fail: (err) => {
+				reject(err.errMsg)
+			}
+		})
+	})
+}
+
+export function sendChat(messages: ChatMessage[]): Promise<string> {
+	return new Promise((resolve, reject) => {
+		uni.request<ChatCompletionResponse>({
+			url: HERMES_BASE_URL + '/v1/chat/completions',
+			method: 'POST',
+			header: getAuthHeader(),
+			data: buildChatBody(messages),
+			timeout: 120000,
+			success: (res) => {
+				if (res.statusCode == 200 && res.data != null) {
+					const choices = res.data!.choices
+					if (choices.length > 0) {
+						resolve(choices[0].message.content)
+					} else {
+						reject('回复为空')
+					}
+				} else {
+					reject('请求失败: ' + res.statusCode)
+				}
+			},
+			fail: (err) => {
+				reject(err.errMsg)
+			}
+		})
+	})
+}

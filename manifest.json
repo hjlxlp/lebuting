@@ -30,6 +30,9 @@
     "vueVersion" : "3",
     "app" : {
         "distribute" : {
+            "android" : {
+                "networkSecurityConfig" : "xml/network_security_config.xml"
+            },
             "icons" : {
                 "android" : {
                     "hdpi" : "",

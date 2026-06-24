@@ -8,6 +8,7 @@ dist/
 # HBuilderX
 .hbuilderx/
 local/
+my/
 
 # 日志
 *.log
@@ -19,6 +20,9 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+
+# Android 本地网络安全配置（由 scripts/sync-android-config.mjs 从 .env 生成）
+nativeResources/android/res/xml/network_security_config.xml
 
 # IDE
 .idea/

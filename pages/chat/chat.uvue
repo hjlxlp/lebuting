@@ -1,0 +1,245 @@
+<template>
+	<view class="page">
+		<view class="status-bar">
+			<view class="status-dot" :class="connected ? 'online' : 'offline'"></view>
+			<text class="status-text">{{ statusText }}</text>
+			<text class="retry-btn" @click="testConnection">重试</text>
+		</view>
+
+		<scroll-view class="message-list" scroll-y="true" :scroll-into-view="scrollIntoView">
+			<view v-if="displayMessages.length == 0" class="empty-tip">
+				<text class="empty-text">连接 Hermes 后即可开始对话</text>
+			</view>
+			<view
+				v-for="(item, index) in displayMessages"
+				:key="index"
+				:id="'msg-' + index"
+				class="message-row"
+				:class="item.role == 'user' ? 'row-user' : 'row-assistant'"
+			>
+				<view class="bubble" :class="item.role == 'user' ? 'bubble-user' : 'bubble-assistant'">
+					<text class="bubble-text" :class="item.role == 'user' ? 'text-user' : 'text-assistant'">{{ item.content }}</text>
+				</view>
+			</view>
+			<view v-if="loading" class="message-row row-assistant">
+				<view class="bubble bubble-assistant">
+					<text class="bubble-text loading-text">思考中...</text>
+				</view>
+			</view>
+			<view id="msg-bottom" style="height: 1px;"></view>
+		</scroll-view>
+
+		<view class="input-bar">
+			<input
+				class="input"
+				v-model="inputText"
+				placeholder="输入消息..."
+				:disabled="loading || !connected"
+				confirm-type="send"
+				@confirm="sendMessage"
+			/>
+			<button
+				class="send-btn"
+				type="primary"
+				size="mini"
+				:disabled="loading || !connected || inputText.trim().length == 0"
+				@click="sendMessage"
+			>发送</button>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { checkHealth, sendChat, type ChatMessage } from '../../utils/hermes.uts'
+
+	type DisplayMessage = {
+		role: string
+		content: string
+	}
+
+	const inputText = ref('')
+	const loading = ref(false)
+	const connected = ref(false)
+	const statusText = ref('正在连接 Hermes...')
+	const scrollIntoView = ref('msg-bottom')
+	const displayMessages = ref<DisplayMessage[]>([])
+	const chatHistory = ref<ChatMessage[]>([])
+
+	function scrollToBottom() {
+		scrollIntoView.value = ''
+		nextTick(() => {
+			scrollIntoView.value = 'msg-bottom'
+		})
+	}
+
+	function testConnection() {
+		statusText.value = '正在连接...'
+		connected.value = false
+		checkHealth().then((info: string) => {
+			connected.value = true
+			statusText.value = '已连接 · ' + info
+		}).catch((err: string) => {
+			connected.value = false
+			statusText.value = '连接失败: ' + err
+		})
+	}
+
+	function sendMessage() {
+		const text = inputText.value.trim()
+		if (text.length == 0 || loading.value || !connected.value) {
+			return
+		}
+
+		displayMessages.value.push({ role: 'user', content: text })
+		chatHistory.value.push({ role: 'user', content: text })
+		inputText.value = ''
+		loading.value = true
+		scrollToBottom()
+
+		sendChat(chatHistory.value).then((reply: string) => {
+			displayMessages.value.push({ role: 'assistant', content: reply })
+			chatHistory.value.push({ role: 'assistant', content: reply })
+			loading.value = false
+			scrollToBottom()
+		}).catch((err: string) => {
+			loading.value = false
+			uni.showToast({ title: err, icon: 'none', duration: 3000 })
+		})
+	}
+
+	onMounted(() => {
+		testConnection()
+	})
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f5f5f5;
+	}
+
+	.status-bar {
+		flex-direction: row;
+		align-items: center;
+		padding: 10px 16px;
+		background-color: #ffffff;
+		border-bottom-width: 1px;
+		border-bottom-color: #e5e5e5;
+		border-bottom-style: solid;
+	}
+
+	.status-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 4px;
+		margin-right: 8px;
+	}
+
+	.online {
+		background-color: #4cd964;
+	}
+
+	.offline {
+		background-color: #dd524d;
+	}
+
+	.status-text {
+		flex: 1;
+		font-size: 13px;
+		color: #666666;
+	}
+
+	.retry-btn {
+		font-size: 13px;
+		color: #007aff;
+		padding: 4px 8px;
+	}
+
+	.message-list {
+		flex: 1;
+		padding: 12px 16px;
+	}
+
+	.empty-tip {
+		align-items: center;
+		padding: 60px 20px;
+	}
+
+	.empty-text {
+		font-size: 14px;
+		color: #999999;
+		text-align: center;
+	}
+
+	.message-row {
+		flex-direction: row;
+		margin-bottom: 12px;
+	}
+
+	.row-user {
+		justify-content: flex-end;
+	}
+
+	.row-assistant {
+		justify-content: flex-start;
+	}
+
+	.bubble {
+		max-width: 80%;
+		padding: 10px 14px;
+		border-radius: 12px;
+	}
+
+	.bubble-user {
+		background-color: #007aff;
+	}
+
+	.bubble-assistant {
+		background-color: #ffffff;
+		border-width: 1px;
+		border-color: #e5e5e5;
+		border-style: solid;
+	}
+
+	.bubble-text {
+		font-size: 15px;
+		line-height: 22px;
+	}
+
+	.text-user {
+		color: #ffffff;
+	}
+
+	.text-assistant {
+		color: #333333;
+	}
+
+	.loading-text {
+		color: #999999;
+	}
+
+	.input-bar {
+		flex-direction: row;
+		align-items: center;
+		padding: 10px 12px;
+		background-color: #ffffff;
+		border-top-width: 1px;
+		border-top-color: #e5e5e5;
+		border-top-style: solid;
+	}
+
+	.input {
+		flex: 1;
+		height: 40px;
+		padding: 0 12px;
+		font-size: 15px;
+		background-color: #f5f5f5;
+		border-radius: 20px;
+		margin-right: 10px;
+	}
+
+	.send-btn {
+		width: 64px;
+	}
+</style>

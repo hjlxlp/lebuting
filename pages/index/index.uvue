@@ -1,24 +1,39 @@
 <template>
-	<view>
+	<view class="container">
 		<image class="logo" src="/static/logo.png"></image>
 		<text class="title">{{title}}</text>
+		<button class="chat-btn" type="primary" @click="goChat">进入 Hermes 对话</button>
 	</view>
 </template>
 
 <script setup lang="uts">
-	const title = ref('Hello')
+	const title = ref('乐不停')
+
+	function goChat() {
+		uni.navigateTo({ url: '/pages/chat/chat' })
+	}
 </script>
 
 <style>
+	.container {
+		align-items: center;
+		padding-top: 100px;
+	}
+
 	.logo {
 		height: 100px;
 		width: 100px;
-		margin: 100px auto 25px auto;
+		margin-bottom: 25px;
 	}
 
 	.title {
 		font-size: 18px;
 		color: #8f8f94;
 		text-align: center;
+		margin-bottom: 40px;
+	}
+
+	.chat-btn {
+		width: 200px;
 	}
 </style>
