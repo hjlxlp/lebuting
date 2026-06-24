@@ -1,46 +1,68 @@
 {
-    "name" : "lebuting",
-    "appid" : "",
-    "description" : "",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
-    "uni-app-x" : {},
-    /* 快应用特有相关 */
-    "quickapp" : {},
-    /* 小程序特有相关 */
-    "mp-weixin" : {
-        "appid" : "",
-        "setting" : {
-            "urlCheck" : false
-        },
-        "usingComponents" : true
-    },
-    "mp-alipay" : {
-        "usingComponents" : true
-    },
-    "mp-baidu" : {
-        "usingComponents" : true
-    },
-    "mp-toutiao" : {
-        "usingComponents" : true
-    },
-    "uniStatistics" : {
-        "enable" : false
-    },
-    "vueVersion" : "3",
-    "app" : {
-        "distribute" : {
-            "android" : {
-                "networkSecurityConfig" : "xml/network_security_config.xml"
-            },
-            "icons" : {
-                "android" : {
-                    "hdpi" : "",
-                    "xhdpi" : "",
-                    "xxhdpi" : "",
-                    "xxxhdpi" : ""
-                }
-            }
-        }
-    }
+	"name": "lebuting",
+	"appid": "__UNI__63AB36D",
+	"description": "",
+	"versionName": "1.0.0",
+	"versionCode": "100",
+	"uni-app-x": {},
+	/* 快应用特有相关 */
+	"quickapp": {},
+	/* 小程序特有相关 */
+	"mp-weixin": {
+		"appid": "",
+		"setting": {
+			"urlCheck": false
+		},
+		"usingComponents": true
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "3",
+	"app": {
+		"distribute": {
+			"android": {
+				"networkSecurityConfig": "xml/network_security_config.xml"
+			},
+			"icons": {
+				"android": {
+					"hdpi": "",
+					"xhdpi": "",
+					"xxhdpi": "",
+					"xxxhdpi": ""
+				}
+			}
+		}
+	},
+	"app-android": {
+		"distribute": {
+			"networkSecurityConfig": "xml/network_security_config.xml",
+			"modules": {},
+			"icons": {
+				"hdpi": "C:/Users/22474/Desktop/Android_App_Icons/mipmap-xxxhdpi/ic_launcher.png",
+				"xhdpi": "C:/Users/22474/Desktop/Android_App_Icons/mipmap-xxxhdpi/ic_launcher.png",
+				"xxhdpi": "C:/Users/22474/Desktop/Android_App_Icons/mipmap-xxxhdpi/ic_launcher.png",
+				"xxxhdpi": "C:/Users/22474/Desktop/Android_App_Icons/mipmap-xxxhdpi/ic_launcher.png"
+			},
+			"splashScreens": {
+				"default": {}
+			}
+		}
+	},
+	"app-ios": {
+		"distribute": {
+			"modules": {},
+			"icons": {},
+			"splashScreens": {}
+		}
+	}
 }
