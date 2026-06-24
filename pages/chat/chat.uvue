@@ -72,15 +72,38 @@
 		})
 	}
 
+	function toErrorMessage(err: any | null): string {
+		if (err == null) {
+			return '未知错误'
+		}
+		return '' + err
+	}
+
+	function createDisplayMessage(role: string, content: string): DisplayMessage {
+		const msg: DisplayMessage = {
+			role: role,
+			content: content
+		}
+		return msg
+	}
+
+	function createChatMessage(role: string, content: string): ChatMessage {
+		const msg: ChatMessage = {
+			role: role,
+			content: content
+		}
+		return msg
+	}
+
 	function testConnection() {
 		statusText.value = '正在连接...'
 		connected.value = false
 		checkHealth().then((info: string) => {
 			connected.value = true
 			statusText.value = '已连接 · ' + info
-		}).catch((err: string) => {
+		}).catch((err) => {
 			connected.value = false
-			statusText.value = '连接失败: ' + err
+			statusText.value = '连接失败: ' + toErrorMessage(err)
 		})
 	}
 
@@ -90,20 +113,20 @@
 			return
 		}
 
-		displayMessages.value.push({ role: 'user', content: text })
-		chatHistory.value.push({ role: 'user', content: text })
+		displayMessages.value.push(createDisplayMessage('user', text))
+		chatHistory.value.push(createChatMessage('user', text))
 		inputText.value = ''
 		loading.value = true
 		scrollToBottom()
 
 		sendChat(chatHistory.value).then((reply: string) => {
-			displayMessages.value.push({ role: 'assistant', content: reply })
-			chatHistory.value.push({ role: 'assistant', content: reply })
+			displayMessages.value.push(createDisplayMessage('assistant', reply))
+			chatHistory.value.push(createChatMessage('assistant', reply))
 			loading.value = false
 			scrollToBottom()
-		}).catch((err: string) => {
+		}).catch((err) => {
 			loading.value = false
-			uni.showToast({ title: err, icon: 'none', duration: 3000 })
+			uni.showToast({ title: toErrorMessage(err), icon: 'none', duration: 3000 })
 		})
 	}
 
