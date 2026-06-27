@@ -1,0 +1,287 @@
+const BIZ_HOST = import.meta.env.VITE_HERMES_HOST as string
+const BIZ_PORT = import.meta.env.VITE_BIZ_API_PORT as string
+
+// #ifdef H5
+export const BIZ_BASE_URL = '/biz-api'
+// #endif
+// #ifndef H5
+export const BIZ_BASE_URL = 'http://' + BIZ_HOST + ':' + (BIZ_PORT != null && BIZ_PORT.length > 0 ? BIZ_PORT : '8181')
+// #endif
+
+export type Food = {
+	id: number
+	name: string
+	type: string
+	excluded: boolean
+	note: string
+}
+
+export type EatRecord = {
+	id: number
+	food_id: number
+	food_name: string
+	food_type: string
+	eaten_at: string
+	meal: string
+}
+
+export type SpinResult = {
+	food: Food
+	pool_size: number
+}
+
+export type FoodStat = {
+	food_id: number
+	label: string
+	total: number
+	month_count: number
+	last_eaten_at: string
+}
+
+export type StatsSummary = {
+	month: string
+	total_count: number
+	ranking: FoodStat[]
+}
+
+export const FOOD_TYPES = ['火锅', '烧烤', '面食', '米饭', '快餐', '轻食', '日料', '韩餐', '西餐', '其他']
+
+type ApiPayload = UTSJSONObject
+
+function apiHeader(): UTSJSONObject {
+	return {
+		'Content-Type': 'application/json'
+	} as UTSJSONObject
+}
+
+function readMessage(raw: ApiPayload): string {
+	const msg = raw['message']
+	if (msg == null) {
+		return '请求失败'
+	}
+	return '' + msg
+}
+
+function requestData(method: string, path: string, body: ApiPayload | null): Promise<ApiPayload> {
+	return new Promise((resolve, reject) => {
+		uni.request<ApiPayload>({
+			url: BIZ_BASE_URL + path,
+			method: method,
+			header: apiHeader(),
+			data: body,
+			timeout: 15000,
+			success: (res) => {
+				if (res.statusCode != 200 || res.data == null) {
+					reject('请求失败: ' + res.statusCode)
+					return
+				}
+				const raw = res.data!
+				const code = raw['code'] as number
+				if (code != 0) {
+					reject(readMessage(raw))
+					return
+				}
+				const data = raw['data']
+				if (data == null) {
+					resolve({} as ApiPayload)
+					return
+				}
+				resolve(data as ApiPayload)
+			},
+			fail: (err) => {
+				reject(err.errMsg)
+			}
+		})
+	})
+}
+
+function requestArray(method: string, path: string, body: ApiPayload | null): Promise<ApiPayload[]> {
+	return new Promise((resolve, reject) => {
+		uni.request<ApiPayload>({
+			url: BIZ_BASE_URL + path,
+			method: method,
+			header: apiHeader(),
+			data: body,
+			timeout: 15000,
+			success: (res) => {
+				if (res.statusCode != 200 || res.data == null) {
+					reject('请求失败: ' + res.statusCode)
+					return
+				}
+				const raw = res.data!
+				const code = raw['code'] as number
+				if (code != 0) {
+					reject(readMessage(raw))
+					return
+				}
+				const data = raw['data']
+				if (data == null) {
+					resolve([] as ApiPayload[])
+					return
+				}
+				resolve(data as ApiPayload[])
+			},
+			fail: (err) => {
+				reject(err.errMsg)
+			}
+		})
+	})
+}
+
+function parseFood(raw: ApiPayload): Food {
+	return {
+		id: raw['id'] as number,
+		name: raw['name'] as string,
+		type: raw['type'] as string,
+		excluded: raw['excluded'] as boolean,
+		note: raw['note'] as string
+	}
+}
+
+function parseRecord(raw: ApiPayload): EatRecord {
+	return {
+		id: raw['id'] as number,
+		food_id: raw['food_id'] as number,
+		food_name: raw['food_name'] as string,
+		food_type: raw['food_type'] as string,
+		eaten_at: raw['eaten_at'] as string,
+		meal: raw['meal'] as string
+	}
+}
+
+function parseStat(raw: ApiPayload): FoodStat {
+	return {
+		food_id: raw['food_id'] as number,
+		label: raw['label'] as string,
+		total: raw['total'] as number,
+		month_count: raw['month_count'] as number,
+		last_eaten_at: raw['last_eaten_at'] as string
+	}
+}
+
+function buildFoodsPath(excluded: boolean | null): string {
+	if (excluded == null) {
+		return '/api/eat/foods'
+	}
+	const flag = excluded ? 'true' : 'false'
+	return '/api/eat/foods?excluded=' + flag
+}
+
+export function foodLabel(food: Food): string {
+	return food.name + ' · ' + food.type
+}
+
+export function recordLabel(record: EatRecord): string {
+	return record.food_name + ' · ' + record.food_type
+}
+
+export function mealLabel(meal: string): string {
+	if (meal == 'breakfast') return '早餐'
+	if (meal == 'lunch') return '午餐'
+	if (meal == 'dinner') return '晚餐'
+	return '加餐'
+}
+
+export function listFoods(excluded: boolean | null = null): Promise<Food[]> {
+	return requestArray('GET', buildFoodsPath(excluded), null).then((rows: ApiPayload[]) => {
+		const list: Food[] = []
+		for (let i = 0; i < rows.length; i++) {
+			list.push(parseFood(rows[i]))
+		}
+		return list
+	})
+}
+
+export function getFood(id: number): Promise<Food | null> {
+	return requestData('GET', '/api/eat/foods/' + id, null).then((data: ApiPayload) => {
+		return parseFood(data)
+	}).catch((err) => {
+		return Promise.reject(err)
+	})
+}
+
+export function createFood(name: string, type: string, note: string = ''): Promise<Food> {
+	const body = {
+		'name': name,
+		'type': type,
+		'note': note
+	} as ApiPayload
+	return requestData('POST', '/api/eat/foods', body).then((data: ApiPayload) => parseFood(data))
+}
+
+export function updateFood(id: number, name: string, type: string, note: string): Promise<Food | null> {
+	const body = {
+		'name': name,
+		'type': type,
+		'note': note
+	} as ApiPayload
+	return requestData('PUT', '/api/eat/foods/' + id, body).then((data: ApiPayload) => parseFood(data))
+}
+
+export function setExcluded(id: number, excluded: boolean): Promise<Food | null> {
+	const body = {
+		'excluded': excluded
+	} as ApiPayload
+	return requestData('PATCH', '/api/eat/foods/' + id + '/exclude', body).then((data: ApiPayload) => parseFood(data))
+}
+
+export function getWheelPool(): Promise<Food[]> {
+	return requestArray('GET', '/api/eat/wheel/pool', null).then((rows: ApiPayload[]) => {
+		const list: Food[] = []
+		for (let i = 0; i < rows.length; i++) {
+			list.push(parseFood(rows[i]))
+		}
+		return list
+	})
+}
+
+export function spinWheel(): Promise<SpinResult> {
+	return requestData('POST', '/api/eat/wheel/spin', {} as ApiPayload).then((data: ApiPayload) => {
+		const foodRaw = data['food'] as ApiPayload
+		const result: SpinResult = {
+			food: parseFood(foodRaw),
+			pool_size: data['pool_size'] as number
+		}
+		return result
+	})
+}
+
+export function addRecord(foodId: number): Promise<EatRecord> {
+	const body = {
+		'food_id': foodId,
+		'source': 'wheel'
+	} as ApiPayload
+	return requestData('POST', '/api/eat/records', body).then((data: ApiPayload) => parseRecord(data))
+}
+
+export function listRecords(): Promise<EatRecord[]> {
+	return requestArray('GET', '/api/eat/records', null).then((rows: ApiPayload[]) => {
+		const list: EatRecord[] = []
+		for (let i = 0; i < rows.length; i++) {
+			list.push(parseRecord(rows[i]))
+		}
+		return list
+	})
+}
+
+export function getFoodMonthCount(foodId: number): Promise<number> {
+	return requestData('GET', '/api/eat/stats/food/' + foodId, null).then((data: ApiPayload) => {
+		return data['month_count'] as number
+	})
+}
+
+export function getStatsSummary(): Promise<StatsSummary> {
+	return requestData('GET', '/api/eat/stats/summary', null).then((data: ApiPayload) => {
+		const rankingRaw = data['ranking'] as ApiPayload[]
+		const ranking: FoodStat[] = []
+		for (let i = 0; i < rankingRaw.length; i++) {
+			ranking.push(parseStat(rankingRaw[i]))
+		}
+		const summary: StatsSummary = {
+			month: data['month'] as string,
+			total_count: data['total_count'] as number,
+			ranking: ranking
+		}
+		return summary
+	})
+}

@@ -1,0 +1,166 @@
+<template>
+	<view class="page">
+		<view class="summary-card">
+			<text class="summary-title">{{ month }} 统计</text>
+			<text class="summary-count">共吃了 {{ totalCount }} 次</text>
+		</view>
+
+		<scroll-view class="list" scroll-y="true">
+			<text class="section-title">本月榜单</text>
+			<view v-if="ranking.length == 0" class="empty">
+				<text class="empty-text">本月还没有记录</text>
+			</view>
+			<view v-for="(item, index) in ranking" :key="index" class="row">
+				<text class="rank" :class="index < 3 ? 'rank-top' : ''">{{ index + 1 }}</text>
+				<view class="row-info">
+					<text class="row-label">{{ item.label }}</text>
+					<text class="row-sub">总计 {{ item.total }} 次 · 最近 {{ item.lastShort }}</text>
+				</view>
+				<text class="row-count">{{ item.month_count }} 次</text>
+			</view>
+		</scroll-view>
+
+		<eat-tab-bar current="stats"></eat-tab-bar>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { getStatsSummary } from '../../utils/eat.uts'
+
+	type RankRow = {
+		food_id: number
+		label: string
+		total: number
+		month_count: number
+		last_eaten_at: string
+		lastShort: string
+	}
+
+	const month = ref('')
+	const totalCount = ref(0)
+	const ranking = ref<RankRow[]>([])
+
+	function shortDate(dateTime: string): string {
+		if (dateTime.length >= 10) {
+			return dateTime.substring(5, 10)
+		}
+		return dateTime
+	}
+
+	function loadStats() {
+		getStatsSummary().then((summary) => {
+			month.value = summary.month
+			totalCount.value = summary.total_count
+			const rows: RankRow[] = []
+			for (let i = 0; i < summary.ranking.length; i++) {
+				const s = summary.ranking[i]
+				rows.push({
+					food_id: s.food_id,
+					label: s.label,
+					total: s.total,
+					month_count: s.month_count,
+					last_eaten_at: s.last_eaten_at,
+					lastShort: shortDate(s.last_eaten_at)
+				})
+			}
+			ranking.value = rows
+		})
+	}
+
+	onShow(() => {
+		loadStats()
+	})
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f5f5f5;
+	}
+
+	.summary-card {
+		margin: 12px 16px;
+		padding: 20px;
+		background-color: #ff6b35;
+		border-radius: 14px;
+	}
+
+	.summary-title {
+		font-size: 14px;
+		color: rgba(255, 255, 255, 0.85);
+		margin-bottom: 6px;
+	}
+
+	.summary-count {
+		font-size: 26px;
+		font-weight: bold;
+		color: #ffffff;
+	}
+
+	.list {
+		flex: 1;
+		padding: 0 16px 8px;
+	}
+
+	.section-title {
+		font-size: 15px;
+		font-weight: bold;
+		color: #333333;
+		margin-bottom: 10px;
+	}
+
+	.row {
+		flex-direction: row;
+		align-items: center;
+		background-color: #ffffff;
+		border-radius: 10px;
+		padding: 14px 12px;
+		margin-bottom: 8px;
+	}
+
+	.rank {
+		width: 28px;
+		font-size: 18px;
+		font-weight: bold;
+		color: #cccccc;
+		text-align: center;
+		margin-right: 8px;
+	}
+
+	.rank-top {
+		color: #ff6b35;
+	}
+
+	.row-info {
+		flex: 1;
+		flex-direction: column;
+	}
+
+	.row-label {
+		font-size: 16px;
+		color: #333333;
+		margin-bottom: 4px;
+	}
+
+	.row-sub {
+		font-size: 12px;
+		color: #999999;
+	}
+
+	.row-count {
+		font-size: 16px;
+		font-weight: bold;
+		color: #ff6b35;
+	}
+
+	.empty {
+		padding: 40px 20px;
+		align-items: center;
+	}
+
+	.empty-text {
+		font-size: 14px;
+		color: #999999;
+	}
+</style>

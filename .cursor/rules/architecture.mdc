@@ -1,0 +1,84 @@
+---
+description: lebuting × Hermes 整体架构背景，后续功能与 Skills 开发必读
+alwaysApply: true
+---
+
+# lebuting × Hermes 架构
+
+## 一句话
+
+**lebuting**（台式机 uni-app-x App）与**微信**均可接入**笔记本 Hermes**（WSL2 Gateway）；自然语言指令走 Agent + Skills，确定性 UI 可直连业务 FastAPI；业务数据存 **SQLite**。
+
+## 拓扑
+
+```
+台式机 / 微信                    笔记本（同 WiFi）
+┌─────────────────┐            ┌────────────────────────────────────────┐
+│ lebuting App    │  HTTP      │ Windows 主机 IP :8642                  │
+│ uni-app-x       │ ─────────► │   └─ WSL2 Hermes Gateway               │
+│ .env → HOST/KEY │            │        ├─ api_server（App 对话入口）    │
+└─────────────────┘            │        ├─ 微信 Bot（Gateway 消息入口）  │
+┌─────────────────┐            │        ├─ Agent + Skills（如记账）      │
+│ 微信客户端       │  微信消息  │        ├─ 业务 FastAPI（Python，自研）  │
+│ 私聊/群聊 Bot   │ ─────────► │        └─ SQLite（业务库，自研）         │
+└─────────────────┘            └────────────────────────────────────────┘
+```
+
+- App 填 `.env` 的 `VITE_HERMES_HOST` 为**笔记本 Windows 局域网 IP**（WSL 镜像网络下不用 WSL 内网 IP）
+- 默认端口 **8642**；已连通 `/health` 与 `/v1/chat/completions`
+- Hermes 安装/防火墙/局域网访问见 `my/docs/Hermes-WSL-完整部署指南.md`（运维文档，非架构必读）
+
+## 两侧职责
+
+| | lebuting（本仓库） | Hermes（笔记本，独立部署） |
+|--|--|--|
+| 定位 | 客户端：UI + 调接口 | 服务端：Agent 运行时 + 多入口 Gateway |
+| 对话入口 | App → api_server（HTTP） | 微信 Bot → Gateway 消息通道（已接入） |
+| 对话 | `utils/hermes.uts` → api_server | Gateway 调模型，匹配 Skills 执行 |
+| 业务 | `utils/*.uts` 封装 HTTP；页面在 `pages/` | Python 脚本 + 业务 FastAPI + SQLite |
+| Skills | 源码在 `.cursor/skills/`，部署到 Hermes | Agent 按 Skill 描述触发（如记账） |
+
+## 三条访问路径
+
+1. **App 对话**（指令型，仅 lebuting）  
+   `sendChat` → `/v1/chat/completions` → Agent + Skills → 业务 API → SQLite → 回复 App  
+   例：「记一笔午餐 35 元」
+
+2. **微信 Bot**（指令型，与 App 对话并列）  
+   用户微信发消息 → Gateway 微信通道 → 同一套 Agent + Skills → 业务 API → SQLite → 回复微信  
+   与 App 对话共用 Skills 与业务后端；会话独立（Hermes `state.db` 按来源区分）
+
+3. **App 直连**（UI 型，仅 lebuting）  
+   App 直接调业务 FastAPI（如 `/api/ledger/...`），不经过对话，适合列表、统计
+
+api_server 与业务 FastAPI 可同进程多路由或分端口；App 默认共用 `.env` 的 host/port，分端口时再单独配置。
+
+## 接口约定
+
+| 项 | 值 |
+|--|--|
+| 健康检查 | `GET /health` |
+| 对话 | `POST /v1/chat/completions`，model=`hermes-agent` |
+| 鉴权 | `Authorization: Bearer ${VITE_HERMES_API_KEY}`（对应 Hermes `API_SERVER_KEY`） |
+| H5 开发 | Hermes：`/hermes-api`；业务：`/biz-api` → **8181** |
+| Android | 直连 `http://HOST:PORT`；改 host 后跑 `node scripts/sync-android-config.mjs` |
+| 业务 API | 固定 **8181**，多模块共用；`backend/main.py` 挂载 `/api/{模块}/...` |
+
+## 本仓库关键路径
+
+- `utils/hermes.uts` — 对话与健康检查
+- `utils/eat.uts` — 今天吃什么业务 API
+- `backend/` — FastAPI 业务服务（8181，SQLite `backend/data/lebuting.db`）
+- `vite.config.js` — H5 代理 `/hermes-api`、`/biz-api`
+- `.env` / `.env.example` — `VITE_HERMES_*`、`VITE_BIZ_API_PORT=8181`
+- `.cursor/skills/<name>/SKILL.md` — Hermes Skill 定义（frontmatter 含 `metadata.hermes.tags`）
+
+## 开发约定
+
+**App**：页面只调 `utils/`，不硬编码 URL；新业务能力加 `utils/xxx.uts`，路径与 Hermes 业务 API 对齐。
+
+**本地 backend**：Conda 环境 `lebuting`；Cursor 跑 `backend/` 相关命令前先 `conda activate lebuting`。
+
+**Hermes**：Skill 写触发条件与步骤；实现放 Python + FastAPI + SQLite。Hermes 自带 `~/.hermes/state.db` 存会话，**业务 SQLite 单独维护**。
+
+**扩展示例（记账）**：Skill 解析指令 → 业务 API 写 SQLite；App 可选记账页直连同一 API。

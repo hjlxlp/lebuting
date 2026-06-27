@@ -1,13 +1,44 @@
 <template>
-	<view class="container">
-		<image class="logo" src="/static/logo.png"></image>
-		<text class="title">{{title}}</text>
-		<button class="chat-btn" type="primary" @click="goChat">进入 Hermes 对话</button>
+	<view class="page">
+		<view class="header">
+			<text class="app-name">乐不停</text>
+			<text class="app-desc">选一个模块开始</text>
+		</view>
+
+		<view class="module-list">
+			<view class="module-card eat-card" @click="goEat">
+				<text class="module-icon">🍽️</text>
+				<view class="module-info">
+					<text class="module-title">今天吃什么</text>
+					<text class="module-sub">转盘帮你选，记录吃过次数</text>
+				</view>
+				<text class="module-arrow">›</text>
+			</view>
+
+			<view class="module-card chat-card" @click="goChat">
+				<text class="module-icon">💬</text>
+				<view class="module-info">
+					<text class="module-title">Hermes 对话</text>
+					<text class="module-sub">连接 Hermes Agent 聊天</text>
+				</view>
+				<text class="module-arrow">›</text>
+			</view>
+
+			<view class="module-card placeholder-card">
+				<text class="module-icon">➕</text>
+				<view class="module-info">
+					<text class="module-title placeholder-title">更多功能</text>
+					<text class="module-sub">敬请期待</text>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script setup lang="uts">
-	const title = ref('乐不停')
+	function goEat() {
+		uni.navigateTo({ url: '/pages/eat/wheel' })
+	}
 
 	function goChat() {
 		uni.navigateTo({ url: '/pages/chat/chat' })
@@ -15,25 +46,89 @@
 </script>
 
 <style>
-	.container {
+	.page {
+		flex: 1;
+		background-color: #f5f5f5;
+		padding: 24px 16px;
+	}
+
+	.header {
+		margin-bottom: 28px;
+		padding-top: 20px;
+	}
+
+	.app-name {
+		font-size: 28px;
+		font-weight: bold;
+		color: #333333;
+		margin-bottom: 6px;
+	}
+
+	.app-desc {
+		font-size: 14px;
+		color: #999999;
+	}
+
+	.module-list {
+		flex-direction: column;
+	}
+
+	.module-card {
+		flex-direction: row;
 		align-items: center;
-		padding-top: 100px;
+		background-color: #ffffff;
+		border-radius: 14px;
+		padding: 18px 16px;
+		margin-bottom: 12px;
+		border-width: 1px;
+		border-color: #eeeeee;
+		border-style: solid;
 	}
 
-	.logo {
-		height: 100px;
-		width: 100px;
-		margin-bottom: 25px;
+	.eat-card {
+		border-left-width: 4px;
+		border-left-color: #ff6b35;
+		border-left-style: solid;
 	}
 
-	.title {
-		font-size: 18px;
-		color: #8f8f94;
-		text-align: center;
-		margin-bottom: 40px;
+	.chat-card {
+		border-left-width: 4px;
+		border-left-color: #007aff;
+		border-left-style: solid;
 	}
 
-	.chat-btn {
-		width: 200px;
+	.placeholder-card {
+		opacity: 0.55;
+	}
+
+	.module-icon {
+		font-size: 32px;
+		margin-right: 14px;
+	}
+
+	.module-info {
+		flex: 1;
+		flex-direction: column;
+	}
+
+	.module-title {
+		font-size: 17px;
+		font-weight: bold;
+		color: #333333;
+		margin-bottom: 4px;
+	}
+
+	.placeholder-title {
+		color: #999999;
+	}
+
+	.module-sub {
+		font-size: 13px;
+		color: #999999;
+	}
+
+	.module-arrow {
+		font-size: 24px;
+		color: #cccccc;
 	}
 </style>

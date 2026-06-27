@@ -32,12 +32,18 @@ function getHermesTarget(env) {
 	return `http://${host}:${port}`
 }
 
-function hermesDevProxy(hermesTarget) {
+function getBizTarget(env) {
+	const host = env.VITE_HERMES_HOST || '127.0.0.1'
+	const port = env.VITE_BIZ_API_PORT || '8181'
+	return `http://${host}:${port}`
+}
+
+function devProxy(name, prefix, target) {
 	return {
-		name: 'hermes-dev-proxy',
+		name: name,
 		configureServer(server) {
 			server.middlewares.use((req, res, next) => {
-				if (req.url == null || !req.url.startsWith('/hermes-api')) {
+				if (req.url == null || !req.url.startsWith(prefix)) {
 					next()
 					return
 				}
@@ -48,8 +54,8 @@ function hermesDevProxy(hermesTarget) {
 					return
 				}
 
-				const targetPath = req.url.replace(/^\/hermes-api/, '') || '/'
-				const targetUrl = hermesTarget + targetPath
+				const targetPath = req.url.replace(new RegExp('^' + prefix), '') || '/'
+				const targetUrl = target + targetPath
 
 				const forwardRequest = (body) => {
 					const headers = {}
@@ -102,9 +108,15 @@ function hermesDevProxy(hermesTarget) {
 export default defineConfig(({ mode }) => {
 	const env = Object.assign(readEnvFile(projectRoot), loadEnv(mode, projectRoot, ''))
 	const hermesTarget = getHermesTarget(env)
+	const bizTarget = getBizTarget(env)
 	console.log('[hermes-dev-proxy] target:', hermesTarget)
+	console.log('[biz-dev-proxy] target:', bizTarget)
 
 	return {
-		plugins: [uni(), hermesDevProxy(hermesTarget)]
+		plugins: [
+			uni(),
+			devProxy('hermes-dev-proxy', '/hermes-api', hermesTarget),
+			devProxy('biz-dev-proxy', '/biz-api', bizTarget)
+		]
 	}
 })

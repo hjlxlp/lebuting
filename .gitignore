@@ -38,4 +38,5 @@ nativeResources/android/res/xml/network_security_config.xml
 Thumbs.db
 Desktop.ini
 
-.cursor/
+backend/data/
+backend/.venv/
