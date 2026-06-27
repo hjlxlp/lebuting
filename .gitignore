@@ -37,3 +37,5 @@ nativeResources/android/res/xml/network_security_config.xml
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+.cursor/
