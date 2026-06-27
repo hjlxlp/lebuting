@@ -9,7 +9,7 @@
 			<view class="module-card eat-card" @click="goEat">
 				<text class="module-icon">🍽️</text>
 				<view class="module-info">
-					<text class="module-title">今天吃什么</text>
+					<text class="module-title">吃什么</text>
 					<text class="module-sub">转盘帮你选，记录吃过次数</text>
 				</view>
 				<text class="module-arrow">›</text>

@@ -23,22 +23,32 @@ function readEnv(filePath) {
 }
 
 const env = readEnv(envPath)
-const host = env.VITE_HERMES_HOST
-if (host == null || host.length == 0 || host == 'YOUR_HERMES_HOST') {
+const hermesHost = env.VITE_HERMES_HOST
+const bizHost = env.VITE_BIZ_API_HOST || hermesHost
+
+if (hermesHost == null || hermesHost.length == 0 || hermesHost == 'YOUR_HERMES_HOST') {
 	console.error('.env 中 VITE_HERMES_HOST 未配置')
 	process.exit(1)
 }
 
+const domains = new Set(['localhost', '10.0.2.2', '127.0.0.1'])
+if (hermesHost.length > 0) domains.add(hermesHost)
+if (bizHost.length > 0 && bizHost != '127.0.0.1' && bizHost != 'localhost') {
+	domains.add(bizHost)
+}
+
+const domainLines = [...domains].map((d) => `\t\t<domain includeSubdomains="true">${d}</domain>`).join('\n')
+
 const xml = `<?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
 \t<domain-config cleartextTrafficPermitted="true">
-\t\t<domain includeSubdomains="true">${host}</domain>
-\t\t<domain includeSubdomains="true">localhost</domain>
-\t\t<domain includeSubdomains="true">10.0.2.2</domain>
+${domainLines}
 \t</domain-config>
 </network-security-config>
 `
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true })
 fs.writeFileSync(outPath, xml, 'utf8')
-console.log('已生成 network_security_config.xml，HOST=' + host)
+console.log('已生成 network_security_config.xml')
+console.log('  Hermes HOST=' + hermesHost)
+console.log('  Biz API HOST=' + bizHost)

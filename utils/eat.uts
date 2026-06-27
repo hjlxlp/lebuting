@@ -1,11 +1,19 @@
-const BIZ_HOST = import.meta.env.VITE_HERMES_HOST as string
+const BIZ_HOST = import.meta.env.VITE_BIZ_API_HOST as string
+const HERMES_HOST = import.meta.env.VITE_HERMES_HOST as string
 const BIZ_PORT = import.meta.env.VITE_BIZ_API_PORT as string
+
+function resolveBizHost(): string {
+	if (BIZ_HOST != null && BIZ_HOST.length > 0) {
+		return BIZ_HOST
+	}
+	return HERMES_HOST
+}
 
 // #ifdef H5
 export const BIZ_BASE_URL = '/biz-api'
 // #endif
 // #ifndef H5
-export const BIZ_BASE_URL = 'http://' + BIZ_HOST + ':' + (BIZ_PORT != null && BIZ_PORT.length > 0 ? BIZ_PORT : '8181')
+export const BIZ_BASE_URL = 'http://' + resolveBizHost() + ':' + (BIZ_PORT != null && BIZ_PORT.length > 0 ? BIZ_PORT : '8181')
 // #endif
 
 export type Food = {
@@ -47,6 +55,12 @@ export type StatsSummary = {
 export const FOOD_TYPES = ['火锅', '烧烤', '面食', '米饭', '快餐', '轻食', '日料', '韩餐', '西餐', '其他']
 
 type ApiPayload = UTSJSONObject
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH'
+type ApiEnvelope = {
+	code: number
+	message: string
+	dataText: string
+}
 
 function apiHeader(): UTSJSONObject {
 	return {
@@ -54,7 +68,7 @@ function apiHeader(): UTSJSONObject {
 	} as UTSJSONObject
 }
 
-function readMessage(raw: ApiPayload): string {
+function readMessage(raw: UTSJSONObject): string {
 	const msg = raw['message']
 	if (msg == null) {
 		return '请求失败'
@@ -62,70 +76,34 @@ function readMessage(raw: ApiPayload): string {
 	return '' + msg
 }
 
-function requestData(method: string, path: string, body: ApiPayload | null): Promise<ApiPayload> {
-	return new Promise((resolve, reject) => {
-		uni.request<ApiPayload>({
-			url: BIZ_BASE_URL + path,
-			method: method,
-			header: apiHeader(),
-			data: body,
-			timeout: 15000,
-			success: (res) => {
-				if (res.statusCode != 200 || res.data == null) {
-					reject('请求失败: ' + res.statusCode)
-					return
-				}
-				const raw = res.data!
-				const code = raw['code'] as number
-				if (code != 0) {
-					reject(readMessage(raw))
-					return
-				}
-				const data = raw['data']
-				if (data == null) {
-					resolve({} as ApiPayload)
-					return
-				}
-				resolve(data as ApiPayload)
-			},
-			fail: (err) => {
-				reject(err.errMsg)
-			}
-		})
-	})
+function stringifyField(value: any | null): string {
+	if (value == null) {
+		return ''
+	}
+	return JSON.stringify(value)
 }
 
-function requestArray(method: string, path: string, body: ApiPayload | null): Promise<ApiPayload[]> {
-	return new Promise((resolve, reject) => {
-		uni.request<ApiPayload>({
-			url: BIZ_BASE_URL + path,
-			method: method,
-			header: apiHeader(),
-			data: body,
-			timeout: 15000,
-			success: (res) => {
-				if (res.statusCode != 200 || res.data == null) {
-					reject('请求失败: ' + res.statusCode)
-					return
-				}
-				const raw = res.data!
-				const code = raw['code'] as number
-				if (code != 0) {
-					reject(readMessage(raw))
-					return
-				}
-				const data = raw['data']
-				if (data == null) {
-					resolve([] as ApiPayload[])
-					return
-				}
-				resolve(data as ApiPayload[])
-			},
-			fail: (err) => {
-				reject(err.errMsg)
-			}
-		})
-	})
+function parsePayloadObject(text: string): ApiPayload | null {
+	if (text.length == 0) {
+		return null
+	}
+	return JSON.parse(text) as ApiPayload
+}
+
+function readPayloadArrayFromText(text: string): ApiPayload[] {
+	const rows: ApiPayload[] = []
+	if (text.length == 0) {
+		return rows
+	}
+	const parsed = JSON.parse(text)
+	if (parsed == null) {
+		return rows
+	}
+	const arr = parsed as ApiPayload[]
+	for (let i = 0; i < arr.length; i++) {
+		rows.push(arr[i])
+	}
+	return rows
 }
 
 function parseFood(raw: ApiPayload): Food {
@@ -159,12 +137,63 @@ function parseStat(raw: ApiPayload): FoodStat {
 	}
 }
 
+function parseFoodListFromText(text: string): Food[] {
+	const rows = readPayloadArrayFromText(text)
+	const list: Food[] = []
+	for (let i = 0; i < rows.length; i++) {
+		list.push(parseFood(rows[i]))
+	}
+	return list
+}
+
+function parseRecordListFromText(text: string): EatRecord[] {
+	const rows = readPayloadArrayFromText(text)
+	const list: EatRecord[] = []
+	for (let i = 0; i < rows.length; i++) {
+		list.push(parseRecord(rows[i]))
+	}
+	return list
+}
+
 function buildFoodsPath(excluded: boolean | null): string {
 	if (excluded == null) {
 		return '/api/eat/foods'
 	}
 	const flag = excluded ? 'true' : 'false'
 	return '/api/eat/foods?excluded=' + flag
+}
+
+function requestEnvelope(method: HttpMethod, path: string, body: UTSJSONObject | null): Promise<ApiEnvelope> {
+	return new Promise((resolve, reject) => {
+		uni.request<UTSJSONObject>({
+			url: BIZ_BASE_URL + path,
+			method: method,
+			header: apiHeader(),
+			data: body,
+			timeout: 15000,
+			success: (res) => {
+				if (res.statusCode != 200 || res.data == null) {
+					reject('请求失败: ' + res.statusCode)
+					return
+				}
+				const raw = res.data!
+				const code = raw['code'] as number
+				if (code != 0) {
+					reject(readMessage(raw))
+					return
+				}
+				const envelope: ApiEnvelope = {
+					code: code,
+					message: readMessage(raw),
+					dataText: stringifyField(raw['data'])
+				}
+				resolve(envelope)
+			},
+			fail: (err) => {
+				reject(err.errMsg)
+			}
+		})
+	})
 }
 
 export function foodLabel(food: Food): string {
@@ -183,20 +212,27 @@ export function mealLabel(meal: string): string {
 }
 
 export function listFoods(excluded: boolean | null = null): Promise<Food[]> {
-	return requestArray('GET', buildFoodsPath(excluded), null).then((rows: ApiPayload[]) => {
-		const list: Food[] = []
-		for (let i = 0; i < rows.length; i++) {
-			list.push(parseFood(rows[i]))
-		}
-		return list
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', buildFoodsPath(excluded), null).then((envelope: ApiEnvelope) => {
+			resolve(parseFoodListFromText(envelope.dataText))
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
 export function getFood(id: number): Promise<Food | null> {
-	return requestData('GET', '/api/eat/foods/' + id, null).then((data: ApiPayload) => {
-		return parseFood(data)
-	}).catch((err) => {
-		return Promise.reject(err)
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', '/api/eat/foods/' + id, null).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)
+			if (data == null) {
+				resolve(null)
+				return
+			}
+			resolve(parseFood(data))
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
@@ -205,8 +241,14 @@ export function createFood(name: string, type: string, note: string = ''): Promi
 		'name': name,
 		'type': type,
 		'note': note
-	} as ApiPayload
-	return requestData('POST', '/api/eat/foods', body).then((data: ApiPayload) => parseFood(data))
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('POST', '/api/eat/foods', body).then((envelope: ApiEnvelope) => {
+			resolve(parseFood(parsePayloadObject(envelope.dataText)!))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
 }
 
 export function updateFood(id: number, name: string, type: string, note: string): Promise<Food | null> {
@@ -214,35 +256,62 @@ export function updateFood(id: number, name: string, type: string, note: string)
 		'name': name,
 		'type': type,
 		'note': note
-	} as ApiPayload
-	return requestData('PUT', '/api/eat/foods/' + id, body).then((data: ApiPayload) => parseFood(data))
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('PUT', '/api/eat/foods/' + id, body).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)
+			if (data == null) {
+				resolve(null)
+				return
+			}
+			resolve(parseFood(data))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
 }
 
 export function setExcluded(id: number, excluded: boolean): Promise<Food | null> {
 	const body = {
 		'excluded': excluded
-	} as ApiPayload
-	return requestData('PATCH', '/api/eat/foods/' + id + '/exclude', body).then((data: ApiPayload) => parseFood(data))
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('PATCH', '/api/eat/foods/' + id + '/exclude', body).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)
+			if (data == null) {
+				resolve(null)
+				return
+			}
+			resolve(parseFood(data))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
 }
 
 export function getWheelPool(): Promise<Food[]> {
-	return requestArray('GET', '/api/eat/wheel/pool', null).then((rows: ApiPayload[]) => {
-		const list: Food[] = []
-		for (let i = 0; i < rows.length; i++) {
-			list.push(parseFood(rows[i]))
-		}
-		return list
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', '/api/eat/wheel/pool', null).then((envelope: ApiEnvelope) => {
+			resolve(parseFoodListFromText(envelope.dataText))
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
 export function spinWheel(): Promise<SpinResult> {
-	return requestData('POST', '/api/eat/wheel/spin', {} as ApiPayload).then((data: ApiPayload) => {
-		const foodRaw = data['food'] as ApiPayload
-		const result: SpinResult = {
-			food: parseFood(foodRaw),
-			pool_size: data['pool_size'] as number
-		}
-		return result
+	return new Promise((resolve, reject) => {
+		requestEnvelope('POST', '/api/eat/wheel/spin', null).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)!
+			const foodRaw = parsePayloadObject(stringifyField(data['food']))!
+			const result: SpinResult = {
+				food: parseFood(foodRaw),
+				pool_size: data['pool_size'] as number
+			}
+			resolve(result)
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
@@ -250,38 +319,54 @@ export function addRecord(foodId: number): Promise<EatRecord> {
 	const body = {
 		'food_id': foodId,
 		'source': 'wheel'
-	} as ApiPayload
-	return requestData('POST', '/api/eat/records', body).then((data: ApiPayload) => parseRecord(data))
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('POST', '/api/eat/records', body).then((envelope: ApiEnvelope) => {
+			resolve(parseRecord(parsePayloadObject(envelope.dataText)!))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
 }
 
 export function listRecords(): Promise<EatRecord[]> {
-	return requestArray('GET', '/api/eat/records', null).then((rows: ApiPayload[]) => {
-		const list: EatRecord[] = []
-		for (let i = 0; i < rows.length; i++) {
-			list.push(parseRecord(rows[i]))
-		}
-		return list
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', '/api/eat/records', null).then((envelope: ApiEnvelope) => {
+			resolve(parseRecordListFromText(envelope.dataText))
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
 export function getFoodMonthCount(foodId: number): Promise<number> {
-	return requestData('GET', '/api/eat/stats/food/' + foodId, null).then((data: ApiPayload) => {
-		return data['month_count'] as number
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', '/api/eat/stats/food/' + foodId, null).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)!
+			resolve(data['month_count'] as number)
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }
 
 export function getStatsSummary(): Promise<StatsSummary> {
-	return requestData('GET', '/api/eat/stats/summary', null).then((data: ApiPayload) => {
-		const rankingRaw = data['ranking'] as ApiPayload[]
-		const ranking: FoodStat[] = []
-		for (let i = 0; i < rankingRaw.length; i++) {
-			ranking.push(parseStat(rankingRaw[i]))
-		}
-		const summary: StatsSummary = {
-			month: data['month'] as string,
-			total_count: data['total_count'] as number,
-			ranking: ranking
-		}
-		return summary
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', '/api/eat/stats/summary', null).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)!
+			const rankingRaw = readPayloadArrayFromText(stringifyField(data['ranking']))
+			const ranking: FoodStat[] = []
+			for (let i = 0; i < rankingRaw.length; i++) {
+				ranking.push(parseStat(rankingRaw[i]))
+			}
+			const summary: StatsSummary = {
+				month: data['month'] as string,
+				total_count: data['total_count'] as number,
+				ranking: ranking
+			}
+			resolve(summary)
+		}).catch((err) => {
+			reject(err)
+		})
 	})
 }

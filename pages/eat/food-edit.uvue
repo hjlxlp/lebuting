@@ -67,12 +67,16 @@
 		if (foodId.value > 0) {
 			updateFood(foodId.value, n, type.value, note.value.trim()).then(() => {
 				uni.showToast({ title: '已保存', icon: 'success' })
-				setTimeout(() => uni.navigateBack(), 400)
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
 			})
 		} else {
 			createFood(n, type.value, note.value.trim()).then(() => {
 				uni.showToast({ title: '已添加', icon: 'success' })
-				setTimeout(() => uni.navigateBack(), 400)
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
 			})
 		}
 	}

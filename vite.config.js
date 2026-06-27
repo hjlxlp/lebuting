@@ -33,7 +33,7 @@ function getHermesTarget(env) {
 }
 
 function getBizTarget(env) {
-	const host = env.VITE_HERMES_HOST || '127.0.0.1'
+	const host = env.VITE_BIZ_API_HOST || env.VITE_HERMES_HOST || '127.0.0.1'
 	const port = env.VITE_BIZ_API_PORT || '8181'
 	return `http://${host}:${port}`
 }

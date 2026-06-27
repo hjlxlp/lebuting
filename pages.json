@@ -9,7 +9,7 @@
 		{
 			"path": "pages/eat/wheel",
 			"style": {
-				"navigationBarTitleText": "今天吃什么"
+				"navigationBarTitleText": "吃什么"
 			}
 		},
 		{

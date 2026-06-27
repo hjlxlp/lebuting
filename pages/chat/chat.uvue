@@ -209,7 +209,7 @@
 	}
 
 	.bubble {
-		max-width: 80%;
+		max-width: 280px;
 		padding: 10px 14px;
 		border-radius: 12px;
 	}

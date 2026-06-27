@@ -1,48 +1,48 @@
 <template>
 	<view class="page">
-		<view class="top-bar">
-			<text class="pool-text">转盘池 {{ poolSize }} 个</text>
-		</view>
+		<scroll-view class="main-scroll" scroll-y="true">
+			<view class="top-bar">
+				<text class="pool-text">转盘池 {{ poolSize }} 个</text>
+			</view>
 
-		<view class="wheel-area">
-			<view class="wheel-outer">
-				<view class="wheel-inner" :style="wheelStyle">
-					<text class="wheel-emoji">🎡</text>
+			<view class="wheel-area">
+				<view class="wheel-outer">
+					<view class="wheel-inner" :style="wheelStyle">
+						<text class="wheel-emoji">🎡</text>
+					</view>
+				</view>
+				<text v-if="spinning" class="hint-text">转盘中...</text>
+				<text v-else-if="poolSize < 2" class="hint-text warn">至少 2 个可选项才能转</text>
+			</view>
+
+			<button
+				class="spin-btn"
+				type="primary"
+				:disabled="spinning || poolSize < 2"
+				@click="doSpin"
+			>转一转</button>
+
+			<view v-if="resultFood != null" class="result-card">
+				<text class="result-title">就吃这个</text>
+				<text class="result-name">{{ resultLabel }}</text>
+				<text class="result-meta">本月已吃 {{ resultMonthCount }} 次</text>
+				<view class="result-actions">
+					<button class="action-btn primary-btn" size="mini" type="primary" @click="doRecord">记一笔</button>
+					<button class="action-btn" size="mini" @click="doExclude">今天不吃</button>
+					<button class="action-btn" size="mini" @click="doSpin">再转</button>
 				</view>
 			</view>
-			<text v-if="spinning" class="hint-text">转盘中...</text>
-			<text v-else-if="poolSize < 2" class="hint-text warn">至少 2 个可选项才能转</text>
-		</view>
 
-		<button
-			class="spin-btn"
-			type="primary"
-			:disabled="spinning || poolSize < 2"
-			@click="doSpin"
-		>转一转</button>
-
-		<view v-if="resultFood != null" class="result-card">
-			<text class="result-title">今天就吃</text>
-			<text class="result-name">{{ resultLabel }}</text>
-			<text class="result-meta">本月已吃 {{ resultMonthCount }} 次</text>
-			<view class="result-actions">
-				<button class="action-btn primary-btn" size="mini" type="primary" @click="doRecord">记一笔</button>
-				<button class="action-btn" size="mini" @click="doExclude">今天不吃</button>
-				<button class="action-btn" size="mini" @click="doSpin">再转</button>
-			</view>
-		</view>
-
-		<view class="pool-preview">
-			<text class="section-title">当前候选</text>
-			<scroll-view class="pool-scroll" scroll-y="true">
-				<view v-for="(item, index) in poolList" :key="index" class="pool-item">
-					<text class="pool-label">{{ item.label }}</text>
-				</view>
+			<view class="pool-preview">
+				<text class="section-title">当前候选</text>
 				<view v-if="poolList.length == 0" class="empty-row">
 					<text class="empty-text">没有可选项，去候选页添加或恢复</text>
 				</view>
-			</scroll-view>
-		</view>
+				<view v-for="(item, index) in poolList" :key="index" class="pool-item">
+					<text class="pool-label">{{ item.label }}</text>
+				</view>
+			</view>
+		</scroll-view>
 
 		<eat-tab-bar current="wheel"></eat-tab-bar>
 	</view>
@@ -152,6 +152,10 @@
 		background-color: #f5f5f5;
 	}
 
+	.main-scroll {
+		flex: 1;
+	}
+
 	.top-bar {
 		padding: 12px 16px;
 		background-color: #ffffff;
@@ -164,13 +168,13 @@
 
 	.wheel-area {
 		align-items: center;
-		padding: 24px 0 12px;
+		padding: 20px 0 10px;
 	}
 
 	.wheel-outer {
-		width: 180px;
-		height: 180px;
-		border-radius: 90px;
+		width: 160px;
+		height: 160px;
+		border-radius: 80px;
 		background-color: #ffe8d6;
 		align-items: center;
 		justify-content: center;
@@ -180,9 +184,9 @@
 	}
 
 	.wheel-inner {
-		width: 140px;
-		height: 140px;
-		border-radius: 70px;
+		width: 124px;
+		height: 124px;
+		border-radius: 62px;
 		background-color: #ffffff;
 		align-items: center;
 		justify-content: center;
@@ -192,7 +196,7 @@
 	}
 
 	.wheel-emoji {
-		font-size: 48px;
+		font-size: 44px;
 	}
 
 	.hint-text {
@@ -206,7 +210,7 @@
 	}
 
 	.spin-btn {
-		margin: 0 40px 16px;
+		margin: 0 40px 12px;
 		background-color: #ff6b35;
 		border-radius: 24px;
 	}
@@ -255,9 +259,8 @@
 	}
 
 	.pool-preview {
-		flex: 1;
-		margin: 0 16px 8px;
-		padding: 12px;
+		margin: 0 16px 16px;
+		padding: 12px 12px 24px;
 		background-color: #ffffff;
 		border-radius: 12px;
 	}
@@ -269,20 +272,15 @@
 		margin-bottom: 8px;
 	}
 
-	.pool-scroll {
-		flex: 1;
-		max-height: 120px;
-	}
-
 	.pool-item {
-		padding: 8px 0;
+		padding: 12px 0;
 		border-bottom-width: 1px;
 		border-bottom-color: #f0f0f0;
 		border-bottom-style: solid;
 	}
 
 	.pool-label {
-		font-size: 14px;
+		font-size: 15px;
 		color: #555555;
 	}
 
