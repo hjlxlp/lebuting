@@ -1,44 +1,22 @@
 ---
-description: lebuting 前端 uni-app x + UTS 写法约束，H5 / Android / iOS 均需可用
+description: uni-app x / UTS 写法约束（Promise、HTTP 解析、CSS、三端网络）。编辑 .uvue/.uts 或前端编译报错时读。
 globs: "**/*.{uvue,uts}"
-alwaysApply: true
+alwaysApply: false
 ---
 
-# uni-app x 前端规范（lebuting）
+# uni-app x / UTS
 
-官方文档：[uni-app x 概述](https://doc.dcloud.net.cn/uni-app-x/) · [UTS](https://doc.dcloud.net.cn/uni-app-x/uts/) · [CSS](https://doc.dcloud.net.cn/uni-app-x/css/) · [编译器已知问题](https://doc.dcloud.net.cn/uni-app-x/uts/compiler-known-issues.html)
+[概述](https://doc.dcloud.net.cn/uni-app-x/) · [UTS](https://doc.dcloud.net.cn/uni-app-x/uts/) · [CSS 子集](https://doc.dcloud.net.cn/uni-app-x/css/) · [编译器已知问题](https://doc.dcloud.net.cn/uni-app-x/uts/compiler-known-issues.html)
 
-## 技术定位（是不是「最前沿」）
+**UTS ≠ Web TS**：Android→Kotlin、iOS→Swift；按原生规则写，勿用 JS 习惯。
 
-- **uni-app x** 是 DCloud **下一代**跨端方案（不是 uni-app js 版）：[官方说明](https://doc.dcloud.net.cn/uni-app-x/) 中 UTS 在 Android→Kotlin、**iOS→Swift**、Web/小程序→JS，uvue 为原生渲染。
-- 选它是**当前 DCloud 主推的 App 方向**，性能/原生度优于 js 版 uni-app；但 **UTS ≠ 浏览器 TS**，约束比 Vue3+TS Web 严得多。
-- **写错的原因**：按 Web TS / uni-app js 习惯写（`.then` 返回值、`as unknown`、百分比 CSS、`127.0.0.1` 真机等），Android/iOS 编译或运行会失败。**必须按 UTS 原生编译规则写，不能当普通前端项目。**
+## 结构
 
-## 目标平台（三端同一套代码）
+- 页面 `pages/**/*.uvue` + `<script setup lang="uts">`
+- 网络/逻辑 `utils/*.uts`；**禁止** `.uvue` 硬编码 URL
+- 模块 slug 见 `architecture.mdc`
 
-| 平台 | UTS 编译产物 | 网络 |
-|------|-------------|------|
-| H5 | JS | Vite 代理 `/hermes-api`、`/biz-api` |
-| Android | Kotlin | 直连 `http://IP:PORT`（`#ifndef H5`） |
-| **iOS** | **Swift** | 同 Android，直连 IP；HTTP 需配置 ATS 例外 |
-
-- 页面：`.uvue` + `<script setup lang="uts">`
-- 逻辑/网络：`utils/*.uts`；**禁止**在 `.uvue` 硬编码 URL
-- 组件：`components/**/*.uvue`；CSS 为 **Web 子集**（见官方 CSS 文档）
-
-## 三端网络
-
-| 服务 | H5 | Android / iOS App |
-|------|-----|-------------------|
-| Hermes | `/hermes-api` | `http://${VITE_HERMES_HOST}:8642` |
-| 业务 API | `/biz-api` | `http://${VITE_BIZ_API_HOST}:8181` |
-
-- `VITE_BIZ_API_HOST`：App 填**开发机局域网 IP**；**禁止 `127.0.0.1`**
-- 改 `.env` → H5 重启；App **重新编译**（Android 另跑 `node scripts/sync-android-config.mjs`）
-- backend：`uvicorn main:app --host 0.0.0.0 --port 8181`
-- iOS 打包前：在 manifest / iOS 配置中允许局域网 **HTTP**（ATS 域名例外，与 Android network_security_config 同理）
-
-**Base URL 模板**（`#ifndef H5` 同时覆盖 Android + iOS）：
+## 网络（参考 `utils/hermes.uts`、`utils/eat-dish.uts`）
 
 ```uts
 // #ifdef H5
@@ -49,33 +27,17 @@ export const BIZ_BASE_URL = 'http://' + host + ':' + port
 // #endif
 ```
 
-参考：`utils/hermes.uts`、`utils/eat-dish.uts`
+## UTS 必守
 
-## UTS 必须遵守（Android + iOS 编译/运行，H5 也建议一致）
+| 项 | 规则 |
+|----|------|
+| Promise | `new Promise` + resolve/reject；禁 `return req().then(() => v)` |
+| HTTP body | `as UTSJSONObject` |
+| HTTP 响应 | `dataText = JSON.stringify(raw['data'])` → `JSON.parse` |
+| 禁止 | `as unknown`、对象字面量 `as` 自定义 type |
+| 回调 | `setTimeout(() => { ... }, ms)` 必须块 |
+| CSS | 禁 `%` 宽度；用 `px`；边框写全 |
 
-**Promise**：`new Promise + resolve/reject`；禁止 `return xxx().then(() => value)`
+## 自检
 
-**HTTP**
-
-- `method`：`'GET' | 'POST' | 'PUT' | 'PATCH'`
-- body：`as UTSJSONObject`
-- 响应：`dataText = JSON.stringify(raw['data'])`，再 `JSON.parse`（兼容 UTSArray / UTSJSONObject）
-- 禁止：`as unknown`、对象字面量 `as` type alias
-
-**回调**：`setTimeout(() => { uni.navigateBack() }, 400)` 必须用块
-
-**CSS**：禁止 `max-width: 80%` 等；用 `px`；边框写全
-
-## 开发自检（每功能必做）
-
-1. **H5** 浏览器
-2. **Android** 真机
-3. **iOS** 真机或模拟器（打包前至少编译通过）
-4. 列表 / 提交 / 统计接口三端各点一遍
-
-## 新增功能 checklist
-
-1. `pages.json` 路由
-2. `utils/xxx.uts`（H5 条件编译 + dataText 解析）
-3. `backend` router + 8181
-4. `.env.example`；Android sync；**iOS ATS 域名**
+H5 → Android 真机 → iOS 编译；列表/提交/统计各点一遍
