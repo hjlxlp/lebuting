@@ -1,0 +1,308 @@
+export type CookDishFood = {
+	id: number
+	name: string
+	type: string
+	excluded: boolean
+	note: string
+}
+
+export type CookDishRecord = {
+	id: number
+	food_id: number
+	food_name: string
+	food_type: string
+	cooked_at: string
+	meal: string
+}
+
+export type CookDishSpinResult = {
+	food: CookDishFood
+	pool_size: number
+}
+
+export type CookDishStat = {
+	food_id: number
+	label: string
+	total: number
+	month_count: number
+	last_cooked_at: string
+}
+
+export type CookDishStatsSummary = {
+	month: string
+	total_count: number
+	ranking: CookDishStat[]
+}
+
+export const COOK_DISH_TYPES = ['家常菜', '快手菜', '硬菜', '汤羹', '凉菜', '烘焙', '素菜', '下饭菜', '其他']
+
+let mockFoods: CookDishFood[] = [
+	{ id: 1, name: '番茄炒蛋', type: '家常菜', excluded: false, note: '15 分钟' },
+	{ id: 2, name: '红烧肉', type: '硬菜', excluded: false, note: '需慢炖' },
+	{ id: 3, name: '酸辣土豆丝', type: '快手菜', excluded: false, note: '' },
+	{ id: 4, name: '紫菜蛋花汤', type: '汤羹', excluded: false, note: '' },
+	{ id: 5, name: '凉拌黄瓜', type: '凉菜', excluded: true, note: '夏天常做' },
+	{ id: 6, name: '宫保鸡丁', type: '下饭菜', excluded: false, note: '' },
+]
+
+let mockRecords: CookDishRecord[] = [
+	{ id: 1, food_id: 1, food_name: '番茄炒蛋', food_type: '家常菜', cooked_at: '2026-06-25 18:30:00', meal: 'dinner' },
+	{ id: 2, food_id: 2, food_name: '红烧肉', food_type: '硬菜', cooked_at: '2026-06-20 12:00:00', meal: 'lunch' },
+	{ id: 3, food_id: 1, food_name: '番茄炒蛋', food_type: '家常菜', cooked_at: '2026-06-18 19:00:00', meal: 'dinner' },
+	{ id: 4, food_id: 6, food_name: '宫保鸡丁', food_type: '下饭菜', cooked_at: '2026-06-26 18:00:00', meal: 'dinner' },
+]
+
+let mockNextFoodId = 7
+let mockNextRecordId = 5
+
+function currentMonthStr(): string {
+	const now = new Date()
+	const m = now.getMonth() + 1
+	const month = m < 10 ? '0' + m : '' + m
+	return now.getFullYear() + '-' + month
+}
+
+function nowDateTimeStr(): string {
+	const now = new Date()
+	const y = now.getFullYear()
+	const mo = now.getMonth() + 1
+	const d = now.getDate()
+	const h = now.getHours()
+	const mi = now.getMinutes()
+	const s = now.getSeconds()
+	function pad(n: number): string {
+		return n < 10 ? '0' + n : '' + n
+	}
+	return y + '-' + pad(mo) + '-' + pad(d) + ' ' + pad(h) + ':' + pad(mi) + ':' + pad(s)
+}
+
+function inferMeal(): string {
+	const h = new Date().getHours()
+	if (h >= 5 && h < 10) return 'breakfast'
+	if (h >= 10 && h < 14) return 'lunch'
+	if (h >= 14 && h < 20) return 'dinner'
+	return 'snack'
+}
+
+function cloneFoods(excluded: boolean | null): CookDishFood[] {
+	const list: CookDishFood[] = []
+	for (let i = 0; i < mockFoods.length; i++) {
+		const f = mockFoods[i]
+		if (excluded != null && f.excluded != excluded) {
+			continue
+		}
+		list.push({
+			id: f.id,
+			name: f.name,
+			type: f.type,
+			excluded: f.excluded,
+			note: f.note
+		})
+	}
+	return list
+}
+
+function findFood(id: number): CookDishFood | null {
+	for (let i = 0; i < mockFoods.length; i++) {
+		if (mockFoods[i].id == id) {
+			return mockFoods[i]
+		}
+	}
+	return null
+}
+
+export function cookDishLabel(food: CookDishFood): string {
+	return food.name + ' · ' + food.type
+}
+
+export function cookDishRecordLabel(record: CookDishRecord): string {
+	return record.food_name + ' · ' + record.food_type
+}
+
+export function cookDishMealLabel(meal: string): string {
+	if (meal == 'breakfast') return '早餐'
+	if (meal == 'lunch') return '午餐'
+	if (meal == 'dinner') return '晚餐'
+	return '加餐'
+}
+
+export function listCookDishFoods(excluded: boolean | null = null): Promise<CookDishFood[]> {
+	return new Promise((resolve) => {
+		resolve(cloneFoods(excluded))
+	})
+}
+
+export function getCookDishFood(id: number): Promise<CookDishFood | null> {
+	return new Promise((resolve) => {
+		resolve(findFood(id))
+	})
+}
+
+export function createCookDishFood(name: string, type: string, note: string = ''): Promise<CookDishFood> {
+	return new Promise((resolve) => {
+		const food: CookDishFood = {
+			id: mockNextFoodId,
+			name: name,
+			type: type,
+			excluded: false,
+			note: note
+		}
+		mockNextFoodId = mockNextFoodId + 1
+		mockFoods.push(food)
+		resolve(food)
+	})
+}
+
+export function updateCookDishFood(id: number, name: string, type: string, note: string): Promise<CookDishFood | null> {
+	return new Promise((resolve) => {
+		const food = findFood(id)
+		if (food == null) {
+			resolve(null)
+			return
+		}
+		food.name = name
+		food.type = type
+		food.note = note
+		resolve(food)
+	})
+}
+
+export function setCookDishExcluded(id: number, excluded: boolean): Promise<CookDishFood | null> {
+	return new Promise((resolve) => {
+		const food = findFood(id)
+		if (food == null) {
+			resolve(null)
+			return
+		}
+		food.excluded = excluded
+		resolve(food)
+	})
+}
+
+export function getCookDishWheelPool(): Promise<CookDishFood[]> {
+	return new Promise((resolve) => {
+		resolve(cloneFoods(false))
+	})
+}
+
+export function spinCookDishWheel(): Promise<CookDishSpinResult> {
+	return new Promise((resolve, reject) => {
+		const pool = cloneFoods(false)
+		if (pool.length < 2) {
+			reject('至少要有 2 个可选项才能转')
+			return
+		}
+		const idx = Math.floor(Math.random() * pool.length)
+		const result: CookDishSpinResult = {
+			food: pool[idx],
+			pool_size: pool.length
+		}
+		resolve(result)
+	})
+}
+
+export function addCookDishRecord(foodId: number): Promise<CookDishRecord> {
+	return new Promise((resolve, reject) => {
+		const food = findFood(foodId)
+		if (food == null) {
+			reject('候选不存在')
+			return
+		}
+		const record: CookDishRecord = {
+			id: mockNextRecordId,
+			food_id: food.id,
+			food_name: food.name,
+			food_type: food.type,
+			cooked_at: nowDateTimeStr(),
+			meal: inferMeal()
+		}
+		mockNextRecordId = mockNextRecordId + 1
+		mockRecords.unshift(record)
+		resolve(record)
+	})
+}
+
+export function listCookDishRecords(): Promise<CookDishRecord[]> {
+	return new Promise((resolve) => {
+		const list: CookDishRecord[] = []
+		for (let i = 0; i < mockRecords.length; i++) {
+			const r = mockRecords[i]
+			list.push({
+				id: r.id,
+				food_id: r.food_id,
+				food_name: r.food_name,
+				food_type: r.food_type,
+				cooked_at: r.cooked_at,
+				meal: r.meal
+			})
+		}
+		resolve(list)
+	})
+}
+
+export function getCookDishMonthCount(foodId: number): Promise<number> {
+	return new Promise((resolve) => {
+		const month = currentMonthStr()
+		let count = 0
+		for (let i = 0; i < mockRecords.length; i++) {
+			const r = mockRecords[i]
+			if (r.food_id == foodId && r.cooked_at.startsWith(month)) {
+				count = count + 1
+			}
+		}
+		resolve(count)
+	})
+}
+
+export function getCookDishStatsSummary(): Promise<CookDishStatsSummary> {
+	return new Promise((resolve) => {
+		const month = currentMonthStr()
+		const ranking: CookDishStat[] = []
+		for (let i = 0; i < mockFoods.length; i++) {
+			const f = mockFoods[i]
+			let total = 0
+			let monthCount = 0
+			let lastCooked = ''
+			for (let j = 0; j < mockRecords.length; j++) {
+				const r = mockRecords[j]
+				if (r.food_id == f.id) {
+					total = total + 1
+					if (r.cooked_at.startsWith(month)) {
+						monthCount = monthCount + 1
+					}
+					if (lastCooked.length == 0 || r.cooked_at > lastCooked) {
+						lastCooked = r.cooked_at
+					}
+				}
+			}
+			if (total > 0) {
+				ranking.push({
+					food_id: f.id,
+					label: f.name + ' · ' + f.type,
+					total: total,
+					month_count: monthCount,
+					last_cooked_at: lastCooked
+				})
+			}
+		}
+		for (let i = 0; i < ranking.length; i++) {
+			for (let j = i + 1; j < ranking.length; j++) {
+				if (ranking[j].month_count > ranking[i].month_count) {
+					const tmp = ranking[i]
+					ranking[i] = ranking[j]
+					ranking[j] = tmp
+				}
+			}
+		}
+		let totalCount = 0
+		for (let i = 0; i < ranking.length; i++) {
+			totalCount = totalCount + ranking[i].month_count
+		}
+		const summary: CookDishStatsSummary = {
+			month: month,
+			total_count: totalCount,
+			ranking: ranking
+		}
+		resolve(summary)
+	})
+}

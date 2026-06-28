@@ -7,37 +7,73 @@
 			}
 		},
 		{
-			"path": "pages/eat/wheel",
+			"path": "pages/eat-dish/wheel",
 			"style": {
-				"navigationBarTitleText": "吃什么"
+				"navigationBarTitleText": "吃什么菜"
 			}
 		},
 		{
-			"path": "pages/eat/foods",
+			"path": "pages/eat-dish/foods",
 			"style": {
 				"navigationBarTitleText": "我的候选"
 			}
 		},
 		{
-			"path": "pages/eat/food-edit",
+			"path": "pages/eat-dish/food-edit",
 			"style": {
 				"navigationBarTitleText": "编辑候选"
 			}
 		},
 		{
-			"path": "pages/eat/excluded",
+			"path": "pages/eat-dish/excluded",
 			"style": {
 				"navigationBarTitleText": "今天不吃"
 			}
 		},
 		{
-			"path": "pages/eat/records",
+			"path": "pages/eat-dish/records",
 			"style": {
 				"navigationBarTitleText": "吃过记录"
 			}
 		},
 		{
-			"path": "pages/eat/stats",
+			"path": "pages/eat-dish/stats",
+			"style": {
+				"navigationBarTitleText": "统计"
+			}
+		},
+		{
+			"path": "pages/cook-dish/wheel",
+			"style": {
+				"navigationBarTitleText": "做什么菜"
+			}
+		},
+		{
+			"path": "pages/cook-dish/foods",
+			"style": {
+				"navigationBarTitleText": "我的候选"
+			}
+		},
+		{
+			"path": "pages/cook-dish/food-edit",
+			"style": {
+				"navigationBarTitleText": "编辑候选"
+			}
+		},
+		{
+			"path": "pages/cook-dish/excluded",
+			"style": {
+				"navigationBarTitleText": "今天不做"
+			}
+		},
+		{
+			"path": "pages/cook-dish/records",
+			"style": {
+				"navigationBarTitleText": "做过记录"
+			}
+		},
+		{
+			"path": "pages/cook-dish/stats",
 			"style": {
 				"navigationBarTitleText": "统计"
 			}

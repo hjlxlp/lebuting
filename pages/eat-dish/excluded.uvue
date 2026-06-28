@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="tip-bar">
-			<text class="tip-text">这些店今天不参与转盘，候选仍保留</text>
+			<text class="tip-text">这些菜今天不参与转盘，候选仍保留</text>
 		</view>
 
 		<scroll-view class="list" scroll-y="true">
@@ -14,12 +14,12 @@
 			</view>
 		</scroll-view>
 
-		<eat-tab-bar current="excluded"></eat-tab-bar>
+		<eat-dish-tab-bar current="excluded"></eat-dish-tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
-	import { listFoods, setExcluded, foodLabel, type Food } from '../../utils/eat.uts'
+	import { listEatDishFoods, setEatDishExcluded, eatDishLabel, type EatDishFood } from '../../utils/eat-dish.uts'
 
 	type Row = {
 		id: number
@@ -29,17 +29,17 @@
 	const items = ref<Row[]>([])
 
 	function loadList() {
-		listFoods(true).then((list: Food[]) => {
+		listEatDishFoods(true).then((list: EatDishFood[]) => {
 			const rows: Row[] = []
 			for (let i = 0; i < list.length; i++) {
-				rows.push({ id: list[i].id, label: foodLabel(list[i]) })
+				rows.push({ id: list[i].id, label: eatDishLabel(list[i]) })
 			}
 			items.value = rows
 		})
 	}
 
 	function restore(id: number) {
-		setExcluded(id, false).then(() => {
+		setEatDishExcluded(id, false).then(() => {
 			loadList()
 			uni.showToast({ title: '已恢复', icon: 'success' })
 		})

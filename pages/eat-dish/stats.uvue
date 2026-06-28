@@ -20,12 +20,12 @@
 			</view>
 		</scroll-view>
 
-		<eat-tab-bar current="stats"></eat-tab-bar>
+		<eat-dish-tab-bar current="stats"></eat-dish-tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
-	import { getStatsSummary } from '../../utils/eat.uts'
+	import { getEatDishStatsSummary } from '../../utils/eat-dish.uts'
 
 	type RankRow = {
 		food_id: number
@@ -48,7 +48,7 @@
 	}
 
 	function loadStats() {
-		getStatsSummary().then((summary) => {
+		getEatDishStatsSummary().then((summary) => {
 			month.value = summary.month
 			totalCount.value = summary.total_count
 			const rows: RankRow[] = []

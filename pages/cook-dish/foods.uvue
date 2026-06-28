@@ -1,0 +1,162 @@
+<template>
+	<view class="page">
+		<view class="toolbar">
+			<text class="mock-tag">假数据</text>
+			<button class="add-btn" type="primary" size="mini" @click="goAdd">+ 新增</button>
+		</view>
+
+		<scroll-view class="list" scroll-y="true">
+			<view v-if="items.length == 0" class="empty">
+				<text class="empty-text">还没有候选，点右上角新增</text>
+			</view>
+			<view v-for="(item, index) in items" :key="index" class="row">
+				<view class="row-main" @click="goEdit(item.id)">
+					<text class="row-label">{{ item.label }}</text>
+					<text v-if="item.note.length > 0" class="row-note">{{ item.note }}</text>
+				</view>
+				<view class="row-actions">
+					<text
+						class="action-link"
+						:class="item.excluded ? 'muted' : ''"
+						@click="toggleExclude(item.id, item.excluded)"
+					>{{ item.excluded ? '已排除' : '今天不做' }}</text>
+				</view>
+			</view>
+		</scroll-view>
+
+		<cook-dish-tab-bar current="foods"></cook-dish-tab-bar>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { listCookDishFoods, setCookDishExcluded, cookDishLabel, type CookDishFood } from '../../utils/cook-dish.uts'
+
+	type FoodRow = {
+		id: number
+		label: string
+		note: string
+		excluded: boolean
+	}
+
+	const items = ref<FoodRow[]>([])
+
+	function loadList() {
+		listCookDishFoods(null).then((list: CookDishFood[]) => {
+			const rows: FoodRow[] = []
+			for (let i = 0; i < list.length; i++) {
+				const f = list[i]
+				rows.push({
+					id: f.id,
+					label: cookDishLabel(f),
+					note: f.note,
+					excluded: f.excluded
+				})
+			}
+			items.value = rows
+		})
+	}
+
+	function goAdd() {
+		uni.navigateTo({ url: '/pages/cook-dish/food-edit' })
+	}
+
+	function goEdit(id: number) {
+		uni.navigateTo({ url: '/pages/cook-dish/food-edit?id=' + id })
+	}
+
+	function toggleExclude(id: number, excluded: boolean) {
+		if (excluded) {
+			return
+		}
+		setCookDishExcluded(id, true).then(() => {
+			loadList()
+			uni.showToast({ title: '已排除转盘', icon: 'none' })
+		})
+	}
+
+	onShow(() => {
+		loadList()
+	})
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f5f5f5;
+	}
+
+	.toolbar {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 10px 16px;
+		background-color: #ffffff;
+	}
+
+	.mock-tag {
+		font-size: 11px;
+		color: #34a853;
+		background-color: #e6f4ea;
+		padding: 2px 8px;
+		border-radius: 10px;
+	}
+
+	.add-btn {
+		background-color: #34a853;
+	}
+
+	.list {
+		flex: 1;
+		padding: 8px 16px;
+	}
+
+	.row {
+		flex-direction: row;
+		align-items: center;
+		background-color: #ffffff;
+		border-radius: 10px;
+		padding: 14px 12px;
+		margin-bottom: 8px;
+	}
+
+	.row-main {
+		flex: 1;
+		flex-direction: column;
+	}
+
+	.row-label {
+		font-size: 16px;
+		color: #333333;
+	}
+
+	.row-note {
+		font-size: 12px;
+		color: #999999;
+		margin-top: 4px;
+	}
+
+	.row-actions {
+		margin-left: 8px;
+	}
+
+	.action-link {
+		font-size: 13px;
+		color: #34a853;
+		padding: 6px 8px;
+	}
+
+	.muted {
+		color: #cccccc;
+	}
+
+	.empty {
+		padding: 60px 20px;
+		align-items: center;
+	}
+
+	.empty-text {
+		font-size: 14px;
+		color: #999999;
+	}
+</style>

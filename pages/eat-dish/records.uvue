@@ -13,12 +13,12 @@
 			</view>
 		</scroll-view>
 
-		<eat-tab-bar current="records"></eat-tab-bar>
+		<eat-dish-tab-bar current="records"></eat-dish-tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
-	import { listRecords, recordLabel, mealLabel, type EatRecord } from '../../utils/eat.uts'
+	import { listEatDishRecords, eatDishRecordLabel, eatDishMealLabel, type EatDishRecord } from '../../utils/eat-dish.uts'
 
 	type Row = {
 		label: string
@@ -29,14 +29,14 @@
 	const items = ref<Row[]>([])
 
 	function loadList() {
-		listRecords().then((list: EatRecord[]) => {
+		listEatDishRecords().then((list: EatDishRecord[]) => {
 			const rows: Row[] = []
 			for (let i = 0; i < list.length; i++) {
 				const r = list[i]
 				rows.push({
-					label: recordLabel(r),
+					label: eatDishRecordLabel(r),
 					timeText: r.eaten_at,
-					mealText: mealLabel(r.meal)
+					mealText: eatDishMealLabel(r.meal)
 				})
 			}
 			items.value = rows

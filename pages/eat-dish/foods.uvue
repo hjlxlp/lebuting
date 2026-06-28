@@ -23,12 +23,12 @@
 			</view>
 		</scroll-view>
 
-		<eat-tab-bar current="foods"></eat-tab-bar>
+		<eat-dish-tab-bar current="foods"></eat-dish-tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
-	import { listFoods, setExcluded, foodLabel, type Food } from '../../utils/eat.uts'
+	import { listEatDishFoods, setEatDishExcluded, eatDishLabel, type EatDishFood } from '../../utils/eat-dish.uts'
 
 	type FoodRow = {
 		id: number
@@ -40,13 +40,13 @@
 	const items = ref<FoodRow[]>([])
 
 	function loadList() {
-		listFoods(null).then((list: Food[]) => {
+		listEatDishFoods(null).then((list: EatDishFood[]) => {
 			const rows: FoodRow[] = []
 			for (let i = 0; i < list.length; i++) {
 				const f = list[i]
 				rows.push({
 					id: f.id,
-					label: foodLabel(f),
+					label: eatDishLabel(f),
 					note: f.note,
 					excluded: f.excluded
 				})
@@ -56,18 +56,18 @@
 	}
 
 	function goAdd() {
-		uni.navigateTo({ url: '/pages/eat/food-edit' })
+		uni.navigateTo({ url: '/pages/eat-dish/food-edit' })
 	}
 
 	function goEdit(id: number) {
-		uni.navigateTo({ url: '/pages/eat/food-edit?id=' + id })
+		uni.navigateTo({ url: '/pages/eat-dish/food-edit?id=' + id })
 	}
 
 	function toggleExclude(id: number, excluded: boolean) {
 		if (excluded) {
 			return
 		}
-		setExcluded(id, true).then(() => {
+		setEatDishExcluded(id, true).then(() => {
 			loadList()
 			uni.showToast({ title: '已排除转盘', icon: 'none' })
 		})

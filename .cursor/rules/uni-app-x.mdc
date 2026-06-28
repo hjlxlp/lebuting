@@ -49,7 +49,7 @@ export const BIZ_BASE_URL = 'http://' + host + ':' + port
 // #endif
 ```
 
-参考：`utils/hermes.uts`、`utils/eat.uts`
+参考：`utils/hermes.uts`、`utils/eat-dish.uts`
 
 ## UTS 必须遵守（Android + iOS 编译/运行，H5 也建议一致）
 

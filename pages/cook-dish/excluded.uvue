@@ -1,0 +1,103 @@
+<template>
+	<view class="page">
+		<view class="tip-bar">
+			<text class="tip-text">这些菜今天不参与转盘，候选仍保留</text>
+		</view>
+
+		<scroll-view class="list" scroll-y="true">
+			<view v-if="items.length == 0" class="empty">
+				<text class="empty-text">没有排除项</text>
+			</view>
+			<view v-for="(item, index) in items" :key="index" class="row">
+				<text class="row-label">{{ item.label }}</text>
+				<button class="restore-btn" size="mini" type="primary" @click="restore(item.id)">恢复转盘</button>
+			</view>
+		</scroll-view>
+
+		<cook-dish-tab-bar current="excluded"></cook-dish-tab-bar>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { listCookDishFoods, setCookDishExcluded, cookDishLabel, type CookDishFood } from '../../utils/cook-dish.uts'
+
+	type Row = {
+		id: number
+		label: string
+	}
+
+	const items = ref<Row[]>([])
+
+	function loadList() {
+		listCookDishFoods(true).then((list: CookDishFood[]) => {
+			const rows: Row[] = []
+			for (let i = 0; i < list.length; i++) {
+				rows.push({ id: list[i].id, label: cookDishLabel(list[i]) })
+			}
+			items.value = rows
+		})
+	}
+
+	function restore(id: number) {
+		setCookDishExcluded(id, false).then(() => {
+			loadList()
+			uni.showToast({ title: '已恢复', icon: 'success' })
+		})
+	}
+
+	onShow(() => {
+		loadList()
+	})
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f5f5f5;
+	}
+
+	.tip-bar {
+		padding: 12px 16px;
+		background-color: #e6f4ea;
+	}
+
+	.tip-text {
+		font-size: 13px;
+		color: #2d6a3e;
+	}
+
+	.list {
+		flex: 1;
+		padding: 8px 16px;
+	}
+
+	.row {
+		flex-direction: row;
+		align-items: center;
+		background-color: #ffffff;
+		border-radius: 10px;
+		padding: 14px 12px;
+		margin-bottom: 8px;
+	}
+
+	.row-label {
+		flex: 1;
+		font-size: 16px;
+		color: #333333;
+	}
+
+	.restore-btn {
+		background-color: #34a853;
+	}
+
+	.empty {
+		padding: 60px 20px;
+		align-items: center;
+	}
+
+	.empty-text {
+		font-size: 14px;
+		color: #999999;
+	}
+</style>

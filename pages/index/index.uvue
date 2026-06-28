@@ -6,11 +6,20 @@
 		</view>
 
 		<view class="module-list">
-			<view class="module-card eat-card" @click="goEat">
+			<view class="module-card eat-dish-card" @click="goEatDish">
 				<text class="module-icon">🍽️</text>
 				<view class="module-info">
-					<text class="module-title">吃什么</text>
-					<text class="module-sub">转盘帮你选，记录吃过次数</text>
+					<text class="module-title">吃什么菜</text>
+					<text class="module-sub">外出就餐转盘，记录吃过次数</text>
+				</view>
+				<text class="module-arrow">›</text>
+			</view>
+
+			<view class="module-card cook-dish-card" @click="goCookDish">
+				<text class="module-icon">👨‍🍳</text>
+				<view class="module-info">
+					<text class="module-title">做什么菜</text>
+					<text class="module-sub">在家下厨转盘，记录做过次数</text>
 				</view>
 				<text class="module-arrow">›</text>
 			</view>
@@ -23,21 +32,17 @@
 				</view>
 				<text class="module-arrow">›</text>
 			</view>
-
-			<view class="module-card placeholder-card">
-				<text class="module-icon">➕</text>
-				<view class="module-info">
-					<text class="module-title placeholder-title">更多功能</text>
-					<text class="module-sub">敬请期待</text>
-				</view>
-			</view>
 		</view>
 	</view>
 </template>
 
 <script setup lang="uts">
-	function goEat() {
-		uni.navigateTo({ url: '/pages/eat/wheel' })
+	function goEatDish() {
+		uni.navigateTo({ url: '/pages/eat-dish/wheel' })
+	}
+
+	function goCookDish() {
+		uni.navigateTo({ url: '/pages/cook-dish/wheel' })
 	}
 
 	function goChat() {
@@ -85,9 +90,15 @@
 		border-style: solid;
 	}
 
-	.eat-card {
+	.eat-dish-card {
 		border-left-width: 4px;
 		border-left-color: #ff6b35;
+		border-left-style: solid;
+	}
+
+	.cook-dish-card {
+		border-left-width: 4px;
+		border-left-color: #34a853;
 		border-left-style: solid;
 	}
 
@@ -95,10 +106,6 @@
 		border-left-width: 4px;
 		border-left-color: #007aff;
 		border-left-style: solid;
-	}
-
-	.placeholder-card {
-		opacity: 0.55;
 	}
 
 	.module-icon {
@@ -116,10 +123,6 @@
 		font-weight: bold;
 		color: #333333;
 		margin-bottom: 4px;
-	}
-
-	.placeholder-title {
-		color: #999999;
 	}
 
 	.module-sub {

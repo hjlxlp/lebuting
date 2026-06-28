@@ -2,6 +2,8 @@ const BIZ_HOST = import.meta.env.VITE_BIZ_API_HOST as string
 const HERMES_HOST = import.meta.env.VITE_HERMES_HOST as string
 const BIZ_PORT = import.meta.env.VITE_BIZ_API_PORT as string
 
+const API_PREFIX = '/api/eat-dish'
+
 function resolveBizHost(): string {
 	if (BIZ_HOST != null && BIZ_HOST.length > 0) {
 		return BIZ_HOST
@@ -16,7 +18,7 @@ export const BIZ_BASE_URL = '/biz-api'
 export const BIZ_BASE_URL = 'http://' + resolveBizHost() + ':' + (BIZ_PORT != null && BIZ_PORT.length > 0 ? BIZ_PORT : '8181')
 // #endif
 
-export type Food = {
+export type EatDishFood = {
 	id: number
 	name: string
 	type: string
@@ -24,7 +26,7 @@ export type Food = {
 	note: string
 }
 
-export type EatRecord = {
+export type EatDishRecord = {
 	id: number
 	food_id: number
 	food_name: string
@@ -33,12 +35,12 @@ export type EatRecord = {
 	meal: string
 }
 
-export type SpinResult = {
-	food: Food
+export type EatDishSpinResult = {
+	food: EatDishFood
 	pool_size: number
 }
 
-export type FoodStat = {
+export type EatDishStat = {
 	food_id: number
 	label: string
 	total: number
@@ -46,13 +48,13 @@ export type FoodStat = {
 	last_eaten_at: string
 }
 
-export type StatsSummary = {
+export type EatDishStatsSummary = {
 	month: string
 	total_count: number
-	ranking: FoodStat[]
+	ranking: EatDishStat[]
 }
 
-export const FOOD_TYPES = ['火锅', '烧烤', '面食', '米饭', '快餐', '轻食', '日料', '韩餐', '西餐', '其他']
+export const EAT_DISH_TYPES = ['火锅', '烧烤', '面食', '米饭', '快餐', '轻食', '日料', '韩餐', '西餐', '其他']
 
 type ApiPayload = UTSJSONObject
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH'
@@ -106,7 +108,7 @@ function readPayloadArrayFromText(text: string): ApiPayload[] {
 	return rows
 }
 
-function parseFood(raw: ApiPayload): Food {
+function parseFood(raw: ApiPayload): EatDishFood {
 	return {
 		id: raw['id'] as number,
 		name: raw['name'] as string,
@@ -116,7 +118,7 @@ function parseFood(raw: ApiPayload): Food {
 	}
 }
 
-function parseRecord(raw: ApiPayload): EatRecord {
+function parseRecord(raw: ApiPayload): EatDishRecord {
 	return {
 		id: raw['id'] as number,
 		food_id: raw['food_id'] as number,
@@ -127,7 +129,7 @@ function parseRecord(raw: ApiPayload): EatRecord {
 	}
 }
 
-function parseStat(raw: ApiPayload): FoodStat {
+function parseStat(raw: ApiPayload): EatDishStat {
 	return {
 		food_id: raw['food_id'] as number,
 		label: raw['label'] as string,
@@ -137,18 +139,18 @@ function parseStat(raw: ApiPayload): FoodStat {
 	}
 }
 
-function parseFoodListFromText(text: string): Food[] {
+function parseFoodListFromText(text: string): EatDishFood[] {
 	const rows = readPayloadArrayFromText(text)
-	const list: Food[] = []
+	const list: EatDishFood[] = []
 	for (let i = 0; i < rows.length; i++) {
 		list.push(parseFood(rows[i]))
 	}
 	return list
 }
 
-function parseRecordListFromText(text: string): EatRecord[] {
+function parseRecordListFromText(text: string): EatDishRecord[] {
 	const rows = readPayloadArrayFromText(text)
-	const list: EatRecord[] = []
+	const list: EatDishRecord[] = []
 	for (let i = 0; i < rows.length; i++) {
 		list.push(parseRecord(rows[i]))
 	}
@@ -157,10 +159,10 @@ function parseRecordListFromText(text: string): EatRecord[] {
 
 function buildFoodsPath(excluded: boolean | null): string {
 	if (excluded == null) {
-		return '/api/eat/foods'
+		return API_PREFIX + '/foods'
 	}
 	const flag = excluded ? 'true' : 'false'
-	return '/api/eat/foods?excluded=' + flag
+	return API_PREFIX + '/foods?excluded=' + flag
 }
 
 function requestEnvelope(method: HttpMethod, path: string, body: UTSJSONObject | null): Promise<ApiEnvelope> {
@@ -196,22 +198,22 @@ function requestEnvelope(method: HttpMethod, path: string, body: UTSJSONObject |
 	})
 }
 
-export function foodLabel(food: Food): string {
+export function eatDishLabel(food: EatDishFood): string {
 	return food.name + ' · ' + food.type
 }
 
-export function recordLabel(record: EatRecord): string {
+export function eatDishRecordLabel(record: EatDishRecord): string {
 	return record.food_name + ' · ' + record.food_type
 }
 
-export function mealLabel(meal: string): string {
+export function eatDishMealLabel(meal: string): string {
 	if (meal == 'breakfast') return '早餐'
 	if (meal == 'lunch') return '午餐'
 	if (meal == 'dinner') return '晚餐'
 	return '加餐'
 }
 
-export function listFoods(excluded: boolean | null = null): Promise<Food[]> {
+export function listEatDishFoods(excluded: boolean | null = null): Promise<EatDishFood[]> {
 	return new Promise((resolve, reject) => {
 		requestEnvelope('GET', buildFoodsPath(excluded), null).then((envelope: ApiEnvelope) => {
 			resolve(parseFoodListFromText(envelope.dataText))
@@ -221,9 +223,9 @@ export function listFoods(excluded: boolean | null = null): Promise<Food[]> {
 	})
 }
 
-export function getFood(id: number): Promise<Food | null> {
+export function getEatDishFood(id: number): Promise<EatDishFood | null> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('GET', '/api/eat/foods/' + id, null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('GET', API_PREFIX + '/foods/' + id, null).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)
 			if (data == null) {
 				resolve(null)
@@ -236,14 +238,14 @@ export function getFood(id: number): Promise<Food | null> {
 	})
 }
 
-export function createFood(name: string, type: string, note: string = ''): Promise<Food> {
+export function createEatDishFood(name: string, type: string, note: string = ''): Promise<EatDishFood> {
 	const body = {
 		'name': name,
 		'type': type,
 		'note': note
 	} as UTSJSONObject
 	return new Promise((resolve, reject) => {
-		requestEnvelope('POST', '/api/eat/foods', body).then((envelope: ApiEnvelope) => {
+		requestEnvelope('POST', API_PREFIX + '/foods', body).then((envelope: ApiEnvelope) => {
 			resolve(parseFood(parsePayloadObject(envelope.dataText)!))
 		}).catch((err) => {
 			reject(err)
@@ -251,14 +253,14 @@ export function createFood(name: string, type: string, note: string = ''): Promi
 	})
 }
 
-export function updateFood(id: number, name: string, type: string, note: string): Promise<Food | null> {
+export function updateEatDishFood(id: number, name: string, type: string, note: string): Promise<EatDishFood | null> {
 	const body = {
 		'name': name,
 		'type': type,
 		'note': note
 	} as UTSJSONObject
 	return new Promise((resolve, reject) => {
-		requestEnvelope('PUT', '/api/eat/foods/' + id, body).then((envelope: ApiEnvelope) => {
+		requestEnvelope('PUT', API_PREFIX + '/foods/' + id, body).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)
 			if (data == null) {
 				resolve(null)
@@ -271,12 +273,12 @@ export function updateFood(id: number, name: string, type: string, note: string)
 	})
 }
 
-export function setExcluded(id: number, excluded: boolean): Promise<Food | null> {
+export function setEatDishExcluded(id: number, excluded: boolean): Promise<EatDishFood | null> {
 	const body = {
 		'excluded': excluded
 	} as UTSJSONObject
 	return new Promise((resolve, reject) => {
-		requestEnvelope('PATCH', '/api/eat/foods/' + id + '/exclude', body).then((envelope: ApiEnvelope) => {
+		requestEnvelope('PATCH', API_PREFIX + '/foods/' + id + '/exclude', body).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)
 			if (data == null) {
 				resolve(null)
@@ -289,9 +291,9 @@ export function setExcluded(id: number, excluded: boolean): Promise<Food | null>
 	})
 }
 
-export function getWheelPool(): Promise<Food[]> {
+export function getEatDishWheelPool(): Promise<EatDishFood[]> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('GET', '/api/eat/wheel/pool', null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('GET', API_PREFIX + '/wheel/pool', null).then((envelope: ApiEnvelope) => {
 			resolve(parseFoodListFromText(envelope.dataText))
 		}).catch((err) => {
 			reject(err)
@@ -299,12 +301,12 @@ export function getWheelPool(): Promise<Food[]> {
 	})
 }
 
-export function spinWheel(): Promise<SpinResult> {
+export function spinEatDishWheel(): Promise<EatDishSpinResult> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('POST', '/api/eat/wheel/spin', null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('POST', API_PREFIX + '/wheel/spin', null).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)!
 			const foodRaw = parsePayloadObject(stringifyField(data['food']))!
-			const result: SpinResult = {
+			const result: EatDishSpinResult = {
 				food: parseFood(foodRaw),
 				pool_size: data['pool_size'] as number
 			}
@@ -315,13 +317,13 @@ export function spinWheel(): Promise<SpinResult> {
 	})
 }
 
-export function addRecord(foodId: number): Promise<EatRecord> {
+export function addEatDishRecord(foodId: number): Promise<EatDishRecord> {
 	const body = {
 		'food_id': foodId,
 		'source': 'wheel'
 	} as UTSJSONObject
 	return new Promise((resolve, reject) => {
-		requestEnvelope('POST', '/api/eat/records', body).then((envelope: ApiEnvelope) => {
+		requestEnvelope('POST', API_PREFIX + '/records', body).then((envelope: ApiEnvelope) => {
 			resolve(parseRecord(parsePayloadObject(envelope.dataText)!))
 		}).catch((err) => {
 			reject(err)
@@ -329,9 +331,9 @@ export function addRecord(foodId: number): Promise<EatRecord> {
 	})
 }
 
-export function listRecords(): Promise<EatRecord[]> {
+export function listEatDishRecords(): Promise<EatDishRecord[]> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('GET', '/api/eat/records', null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('GET', API_PREFIX + '/records', null).then((envelope: ApiEnvelope) => {
 			resolve(parseRecordListFromText(envelope.dataText))
 		}).catch((err) => {
 			reject(err)
@@ -339,9 +341,9 @@ export function listRecords(): Promise<EatRecord[]> {
 	})
 }
 
-export function getFoodMonthCount(foodId: number): Promise<number> {
+export function getEatDishMonthCount(foodId: number): Promise<number> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('GET', '/api/eat/stats/food/' + foodId, null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('GET', API_PREFIX + '/stats/food/' + foodId, null).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)!
 			resolve(data['month_count'] as number)
 		}).catch((err) => {
@@ -350,16 +352,16 @@ export function getFoodMonthCount(foodId: number): Promise<number> {
 	})
 }
 
-export function getStatsSummary(): Promise<StatsSummary> {
+export function getEatDishStatsSummary(): Promise<EatDishStatsSummary> {
 	return new Promise((resolve, reject) => {
-		requestEnvelope('GET', '/api/eat/stats/summary', null).then((envelope: ApiEnvelope) => {
+		requestEnvelope('GET', API_PREFIX + '/stats/summary', null).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)!
 			const rankingRaw = readPayloadArrayFromText(stringifyField(data['ranking']))
-			const ranking: FoodStat[] = []
+			const ranking: EatDishStat[] = []
 			for (let i = 0; i < rankingRaw.length; i++) {
 				ranking.push(parseStat(rankingRaw[i]))
 			}
-			const summary: StatsSummary = {
+			const summary: EatDishStatsSummary = {
 				month: data['month'] as string,
 				total_count: data['total_count'] as number,
 				ranking: ranking

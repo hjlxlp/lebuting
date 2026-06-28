@@ -1,0 +1,142 @@
+<template>
+	<view class="page">
+		<view class="form">
+			<view class="field">
+				<text class="label">名称</text>
+				<input class="input" v-model="name" placeholder="如：成都你六姐" />
+			</view>
+			<view class="field">
+				<text class="label">类型</text>
+				<view class="type-row">
+					<text
+						v-for="(t, index) in typeOptions"
+						:key="index"
+						class="type-tag"
+						:class="type == t ? 'type-active' : ''"
+						@click="type = t"
+					>{{ t }}</text>
+				</view>
+			</view>
+			<view class="field">
+				<text class="label">备注</text>
+				<input class="input" v-model="note" placeholder="可选" />
+			</view>
+		</view>
+
+		<button class="save-btn" type="primary" @click="save">保存</button>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import {
+		EAT_DISH_TYPES,
+		getEatDishFood,
+		createEatDishFood,
+		updateEatDishFood
+	} from '../../utils/eat-dish.uts'
+
+	const foodId = ref(0)
+	const name = ref('')
+	const type = ref('火锅')
+	const note = ref('')
+	const typeOptions = EAT_DISH_TYPES
+
+	onLoad((options) => {
+		const idStr = options['id']
+		if (idStr != null && ('' + idStr).length > 0) {
+			foodId.value = parseInt('' + idStr)
+			uni.setNavigationBarTitle({ title: '编辑候选' })
+			getEatDishFood(foodId.value).then((food) => {
+				if (food != null) {
+					name.value = food.name
+					type.value = food.type
+					note.value = food.note
+				}
+			})
+		} else {
+			uni.setNavigationBarTitle({ title: '新增候选' })
+		}
+	})
+
+	function save() {
+		const n = name.value.trim()
+		if (n.length == 0) {
+			uni.showToast({ title: '请填写名称', icon: 'none' })
+			return
+		}
+		if (foodId.value > 0) {
+			updateEatDishFood(foodId.value, n, type.value, note.value.trim()).then(() => {
+				uni.showToast({ title: '已保存', icon: 'success' })
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
+			})
+		} else {
+			createEatDishFood(n, type.value, note.value.trim()).then(() => {
+				uni.showToast({ title: '已添加', icon: 'success' })
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
+			})
+		}
+	}
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		background-color: #f5f5f5;
+		padding: 16px;
+	}
+
+	.form {
+		background-color: #ffffff;
+		border-radius: 12px;
+		padding: 16px;
+		margin-bottom: 20px;
+	}
+
+	.field {
+		margin-bottom: 18px;
+	}
+
+	.label {
+		font-size: 14px;
+		color: #666666;
+		margin-bottom: 8px;
+	}
+
+	.input {
+		height: 44px;
+		padding: 0 12px;
+		font-size: 15px;
+		background-color: #f5f5f5;
+		border-radius: 8px;
+	}
+
+	.type-row {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.type-tag {
+		font-size: 13px;
+		color: #666666;
+		background-color: #f0f0f0;
+		padding: 6px 12px;
+		border-radius: 16px;
+		margin-right: 8px;
+		margin-bottom: 8px;
+	}
+
+	.type-active {
+		background-color: #ffe8d6;
+		color: #ff6b35;
+		font-weight: bold;
+	}
+
+	.save-btn {
+		background-color: #ff6b35;
+		border-radius: 24px;
+	}
+</style>

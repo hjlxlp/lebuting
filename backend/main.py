@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import API_PORT
 from app.database import init_db
-from app.routers import eat
+from app.eat_dish.router import router as eat_dish_router
 
 
 @asynccontextmanager
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(eat.router, prefix="/api/eat")
+app.include_router(eat_dish_router, prefix="/api/eat-dish")
 
 
 @app.get("/health")

@@ -1,0 +1,74 @@
+<template>
+	<view class="tab-bar">
+		<view
+			v-for="(item, index) in tabs"
+			:key="index"
+			class="tab-item"
+			:class="current == item.key ? 'tab-active' : ''"
+			@click="goTab(item)"
+		>
+			<text class="tab-icon">{{ item.icon }}</text>
+			<text class="tab-text" :class="current == item.key ? 'tab-text-active' : ''">{{ item.label }}</text>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	type TabItem = {
+		key: string
+		label: string
+		icon: string
+		url: string
+	}
+
+	const props = defineProps({
+		current: { type: String, default: 'wheel' }
+	})
+
+	const tabs: TabItem[] = [
+		{ key: 'wheel', label: '转盘', icon: '🎡', url: '/pages/cook-dish/wheel' },
+		{ key: 'foods', label: '候选', icon: '📋', url: '/pages/cook-dish/foods' },
+		{ key: 'excluded', label: '今天不做', icon: '🚫', url: '/pages/cook-dish/excluded' },
+		{ key: 'records', label: '记录', icon: '📝', url: '/pages/cook-dish/records' },
+		{ key: 'stats', label: '统计', icon: '📊', url: '/pages/cook-dish/stats' },
+	]
+
+	function goTab(item: TabItem) {
+		if (props.current == item.key) {
+			return
+		}
+		uni.redirectTo({ url: item.url })
+	}
+</script>
+
+<style>
+	.tab-bar {
+		flex-direction: row;
+		background-color: #ffffff;
+		border-top-width: 1px;
+		border-top-color: #e5e5e5;
+		border-top-style: solid;
+		padding-bottom: 4px;
+	}
+
+	.tab-item {
+		flex: 1;
+		align-items: center;
+		padding: 8px 0 6px;
+	}
+
+	.tab-icon {
+		font-size: 18px;
+		margin-bottom: 2px;
+	}
+
+	.tab-text {
+		font-size: 11px;
+		color: #999999;
+	}
+
+	.tab-text-active {
+		color: #34a853;
+		font-weight: bold;
+	}
+</style>

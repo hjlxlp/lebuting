@@ -1,31 +1,32 @@
 import random
-from datetime import datetime
 
 from fastapi import APIRouter, Query
 
-from app.database import (
-    current_month,
-    get_conn,
-    infer_meal,
-    now_str,
-    row_to_food,
-    row_to_record,
+from app.core import current_month, get_conn, infer_meal, now_str
+from app.eat_dish.db import row_to_food, row_to_record
+from app.eat_dish.schemas import (
+    EatDishExcludeBody,
+    EatDishFoodCreate,
+    EatDishFoodUpdate,
+    EatDishRecordCreate,
+    EatDishSpinBody,
 )
 from app.response import fail, ok
-from app.schemas import ExcludeBody, FoodCreate, FoodUpdate, RecordCreate, SpinBody
 
 router = APIRouter()
 
 
 def _get_food(conn, food_id: int):
-    row = conn.execute("SELECT * FROM foods WHERE id = ?", (food_id,)).fetchone()
+    row = conn.execute(
+        "SELECT * FROM eat_dish_foods WHERE id = ?", (food_id,)
+    ).fetchone()
     if row is None:
         return None
     return row_to_food(row)
 
 
 def _wheel_pool(conn, type_filter: str | None = None) -> list[dict]:
-    sql = "SELECT * FROM foods WHERE excluded = 0"
+    sql = "SELECT * FROM eat_dish_foods WHERE excluded = 0"
     params: list = []
     if type_filter:
         sql += " AND type = ?"
@@ -41,7 +42,7 @@ def _food_stats(conn, food_id: int, month: str | None = None) -> dict | None:
         return None
     month = month or current_month()
     rows = conn.execute(
-        "SELECT eaten_at FROM eat_records WHERE food_id = ? ORDER BY eaten_at DESC",
+        "SELECT eaten_at FROM eat_dish_records WHERE food_id = ? ORDER BY eaten_at DESC",
         (food_id,),
     ).fetchall()
     total = len(rows)
@@ -62,7 +63,7 @@ def list_foods(
     type: str | None = Query(default=None),
     excluded: bool | None = Query(default=None),
 ):
-    sql = "SELECT * FROM foods WHERE 1=1"
+    sql = "SELECT * FROM eat_dish_foods WHERE 1=1"
     params: list = []
     if type is not None:
         sql += " AND type = ?"
@@ -77,7 +78,7 @@ def list_foods(
 
 
 @router.post("/foods")
-def create_food(body: FoodCreate):
+def create_food(body: EatDishFoodCreate):
     name = body.name.strip()
     if not name:
         return fail("名称不能为空")
@@ -87,7 +88,7 @@ def create_food(body: FoodCreate):
     ts = now_str()
     with get_conn() as conn:
         cur = conn.execute(
-            "INSERT INTO foods (name, type, excluded, note, created_at, updated_at) VALUES (?, ?, 0, ?, ?, ?)",
+            "INSERT INTO eat_dish_foods (name, type, excluded, note, created_at, updated_at) VALUES (?, ?, 0, ?, ?, ?)",
             (name, typ, (body.note or "").strip(), ts, ts),
         )
         food = _get_food(conn, cur.lastrowid)
@@ -104,7 +105,7 @@ def get_food(food_id: int):
 
 
 @router.put("/foods/{food_id}")
-def update_food(food_id: int, body: FoodUpdate):
+def update_food(food_id: int, body: EatDishFoodUpdate):
     name = body.name.strip()
     if not name:
         return fail("名称不能为空")
@@ -116,19 +117,19 @@ def update_food(food_id: int, body: FoodUpdate):
         if _get_food(conn, food_id) is None:
             return fail("候选不存在", http_status=404)
         conn.execute(
-            "UPDATE foods SET name=?, type=?, note=?, updated_at=? WHERE id=?",
+            "UPDATE eat_dish_foods SET name=?, type=?, note=?, updated_at=? WHERE id=?",
             (name, typ, (body.note or "").strip(), ts, food_id),
         )
         return ok(_get_food(conn, food_id))
 
 
 @router.patch("/foods/{food_id}/exclude")
-def set_excluded(food_id: int, body: ExcludeBody):
+def set_excluded(food_id: int, body: EatDishExcludeBody):
     with get_conn() as conn:
         if _get_food(conn, food_id) is None:
             return fail("候选不存在", http_status=404)
         conn.execute(
-            "UPDATE foods SET excluded=?, updated_at=? WHERE id=?",
+            "UPDATE eat_dish_foods SET excluded=?, updated_at=? WHERE id=?",
             (1 if body.excluded else 0, now_str(), food_id),
         )
         return ok(_get_food(conn, food_id))
@@ -138,7 +139,7 @@ def set_excluded(food_id: int, body: ExcludeBody):
 def list_food_types():
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT DISTINCT type FROM foods ORDER BY type"
+            "SELECT DISTINCT type FROM eat_dish_foods ORDER BY type"
         ).fetchall()
         return ok([r["type"] for r in rows])
 
@@ -151,7 +152,7 @@ def wheel_pool(type: str | None = Query(default=None)):
 
 
 @router.post("/wheel/spin")
-def wheel_spin(body: SpinBody | None = None):
+def wheel_spin(body: EatDishSpinBody | None = None):
     type_filter = None
     if body is not None and body.type:
         type_filter = body.type.strip() or None
@@ -164,7 +165,7 @@ def wheel_spin(body: SpinBody | None = None):
 
 
 @router.post("/records")
-def create_record(body: RecordCreate):
+def create_record(body: EatDishRecordCreate):
     with get_conn() as conn:
         food = _get_food(conn, body.food_id)
         if food is None:
@@ -173,7 +174,7 @@ def create_record(body: RecordCreate):
         meal = (body.meal or infer_meal()).strip()
         source = (body.source or "wheel").strip()
         cur = conn.execute(
-            "INSERT INTO eat_records (food_id, food_name, food_type, eaten_at, meal, source, note) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO eat_dish_records (food_id, food_name, food_type, eaten_at, meal, source, note) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 food["id"],
                 food["name"],
@@ -185,7 +186,7 @@ def create_record(body: RecordCreate):
             ),
         )
         row = conn.execute(
-            "SELECT * FROM eat_records WHERE id = ?", (cur.lastrowid,)
+            "SELECT * FROM eat_dish_records WHERE id = ?", (cur.lastrowid,)
         ).fetchone()
         return ok(row_to_record(row))
 
@@ -195,7 +196,7 @@ def list_records(
     month: str | None = Query(default=None),
     food_id: int | None = Query(default=None),
 ):
-    sql = "SELECT * FROM eat_records WHERE 1=1"
+    sql = "SELECT * FROM eat_dish_records WHERE 1=1"
     params: list = []
     if month:
         sql += " AND eaten_at LIKE ?"
@@ -213,7 +214,9 @@ def list_records(
 def stats_summary(month: str | None = Query(default=None)):
     month = month or current_month()
     with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM eat_records ORDER BY eaten_at DESC").fetchall()
+        rows = conn.execute(
+            "SELECT * FROM eat_dish_records ORDER BY eaten_at DESC"
+        ).fetchall()
         stats_map: dict[int, dict] = {}
         for r in rows:
             fid = r["food_id"]
@@ -231,7 +234,9 @@ def stats_summary(month: str | None = Query(default=None)):
                 stat["month_count"] += 1
             if r["eaten_at"] > stat["last_eaten_at"]:
                 stat["last_eaten_at"] = r["eaten_at"]
-        ranking = sorted(stats_map.values(), key=lambda x: x["month_count"], reverse=True)
+        ranking = sorted(
+            stats_map.values(), key=lambda x: x["month_count"], reverse=True
+        )
         total_count = sum(s["month_count"] for s in ranking)
         return ok({"month": month, "total_count": total_count, "ranking": ranking})
 
