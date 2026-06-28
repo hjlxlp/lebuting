@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS cook_dish_foods (
   updated_at  TEXT NOT NULL
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cook_dish_foods_name ON cook_dish_foods(name);
+
 CREATE TABLE IF NOT EXISTS cook_dish_records (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   food_id     INTEGER NOT NULL,
@@ -28,7 +30,18 @@ CREATE TABLE IF NOT EXISTS cook_dish_records (
 CREATE INDEX IF NOT EXISTS idx_cook_dish_foods_excluded ON cook_dish_foods(excluded);
 CREATE INDEX IF NOT EXISTS idx_cook_dish_records_cooked_at ON cook_dish_records(cooked_at);
 CREATE INDEX IF NOT EXISTS idx_cook_dish_records_food_id ON cook_dish_records(food_id);
+
+CREATE TABLE IF NOT EXISTS cook_dish_types (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT NOT NULL UNIQUE,
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  created_at  TEXT NOT NULL
+);
 """
+
+DEFAULT_TYPES = [
+    "家常菜", "快手菜", "硬菜", "汤羹", "凉菜", "烘焙", "素菜", "下饭菜", "其他",
+]
 
 SEED_FOODS = [
     ("番茄炒蛋", "家常菜", 0, "15 分钟"),
@@ -72,9 +85,43 @@ def row_to_record(row: sqlite3.Row) -> dict:
     }
 
 
+def row_to_type(row: sqlite3.Row) -> dict:
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "sort_order": row["sort_order"],
+    }
+
+
+def _seed_types(conn: sqlite3.Connection) -> None:
+    count = conn.execute("SELECT COUNT(*) FROM cook_dish_types").fetchone()[0]
+    if count > 0:
+        return
+    ts = now_str()
+    seen: set[str] = set()
+    for i, name in enumerate(DEFAULT_TYPES):
+        conn.execute(
+            "INSERT INTO cook_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
+            (name, i, ts),
+        )
+        seen.add(name)
+    rows = conn.execute("SELECT DISTINCT type FROM cook_dish_foods").fetchall()
+    order = len(seen)
+    for r in rows:
+        typ = r["type"]
+        if typ not in seen:
+            conn.execute(
+                "INSERT INTO cook_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
+                (typ, order, ts),
+            )
+            seen.add(typ)
+            order += 1
+
+
 def init_cook_dish_db() -> None:
     with get_conn() as conn:
         conn.executescript(SCHEMA_SQL)
+        _seed_types(conn)
         count = conn.execute("SELECT COUNT(*) FROM cook_dish_foods").fetchone()[0]
         if count == 0:
             ts = now_str()

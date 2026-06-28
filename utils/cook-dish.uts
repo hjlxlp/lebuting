@@ -54,10 +54,16 @@ export type CookDishStatsSummary = {
 	ranking: CookDishStat[]
 }
 
+export type CookDishType = {
+	id: number
+	name: string
+	sort_order: number
+}
+
 export const COOK_DISH_TYPES = ['家常菜', '快手菜', '硬菜', '汤羹', '凉菜', '烘焙', '素菜', '下饭菜', '其他']
 
 type ApiPayload = UTSJSONObject
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH'
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 type ApiEnvelope = {
 	code: number
 	message: string
@@ -139,6 +145,23 @@ function parseStat(raw: ApiPayload): CookDishStat {
 	}
 }
 
+function parseType(raw: ApiPayload): CookDishType {
+	return {
+		id: raw['id'] as number,
+		name: raw['name'] as string,
+		sort_order: raw['sort_order'] as number
+	}
+}
+
+function parseTypeListFromText(text: string): CookDishType[] {
+	const rows = readPayloadArrayFromText(text)
+	const list: CookDishType[] = []
+	for (let i = 0; i < rows.length; i++) {
+		list.push(parseType(rows[i]))
+	}
+	return list
+}
+
 function parseFoodListFromText(text: string): CookDishFood[] {
 	const rows = readPayloadArrayFromText(text)
 	const list: CookDishFood[] = []
@@ -165,6 +188,17 @@ function buildFoodsPath(excluded: boolean | null): string {
 	return API_PREFIX + '/foods?excluded=' + flag
 }
 
+function normalizeApiRaw(data: any | null): ApiPayload | null {
+	if (data == null) {
+		return null
+	}
+	const direct = data as ApiPayload
+	if (direct['message'] != null || direct['code'] != null) {
+		return direct
+	}
+	return parsePayloadObject(stringifyField(data))
+}
+
 function requestEnvelope(method: HttpMethod, path: string, body: UTSJSONObject | null): Promise<ApiEnvelope> {
 	return new Promise((resolve, reject) => {
 		uni.request<UTSJSONObject>({
@@ -174,11 +208,11 @@ function requestEnvelope(method: HttpMethod, path: string, body: UTSJSONObject |
 			data: body,
 			timeout: 15000,
 			success: (res) => {
-				if (res.statusCode != 200 || res.data == null) {
-					reject('请求失败: ' + res.statusCode)
+				const raw = normalizeApiRaw(res.data)
+				if (raw == null) {
+					reject('网络异常，请稍后重试')
 					return
 				}
-				const raw = res.data!
 				const code = raw['code'] as number
 				if (code != 0) {
 					reject(readMessage(raw))
@@ -367,6 +401,77 @@ export function getCookDishStatsSummary(): Promise<CookDishStatsSummary> {
 				ranking: ranking
 			}
 			resolve(summary)
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function deleteCookDishFood(id: number): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+		requestEnvelope('DELETE', API_PREFIX + '/foods/' + id, null).then(() => {
+			resolve(true)
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function deleteCookDishRecord(id: number): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+		requestEnvelope('DELETE', API_PREFIX + '/records/' + id, null).then(() => {
+			resolve(true)
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function listCookDishTypes(): Promise<CookDishType[]> {
+	return new Promise((resolve, reject) => {
+		requestEnvelope('GET', API_PREFIX + '/types', null).then((envelope: ApiEnvelope) => {
+			resolve(parseTypeListFromText(envelope.dataText))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function createCookDishType(name: string): Promise<CookDishType> {
+	const body = {
+		'name': name
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('POST', API_PREFIX + '/types', body).then((envelope: ApiEnvelope) => {
+			resolve(parseType(parsePayloadObject(envelope.dataText)!))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function updateCookDishType(id: number, name: string): Promise<CookDishType | null> {
+	const body = {
+		'name': name
+	} as UTSJSONObject
+	return new Promise((resolve, reject) => {
+		requestEnvelope('PUT', API_PREFIX + '/types/' + id, body).then((envelope: ApiEnvelope) => {
+			const data = parsePayloadObject(envelope.dataText)
+			if (data == null) {
+				resolve(null)
+				return
+			}
+			resolve(parseType(data))
+		}).catch((err) => {
+			reject(err)
+		})
+	})
+}
+
+export function deleteCookDishType(id: number): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+		requestEnvelope('DELETE', API_PREFIX + '/types/' + id, null).then(() => {
+			resolve(true)
 		}).catch((err) => {
 			reject(err)
 		})

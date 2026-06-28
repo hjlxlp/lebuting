@@ -1,0 +1,111 @@
+<template>
+	<view class="page">
+		<view class="form">
+			<view class="field">
+				<text class="label">分类名称</text>
+				<input class="input" v-model="name" placeholder="如：火锅" />
+			</view>
+		</view>
+
+		<button class="save-btn" type="primary" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { createEatDishType, updateEatDishType, listEatDishTypes } from '../../utils/eat-dish.uts'
+
+	const typeId = ref(0)
+	const name = ref('')
+	const saving = ref(false)
+
+	onLoad((options) => {
+		const idStr = options['id']
+		if (idStr != null && ('' + idStr).length > 0) {
+			typeId.value = parseInt('' + idStr)
+			uni.setNavigationBarTitle({ title: '编辑分类' })
+			listEatDishTypes().then((list) => {
+				for (let i = 0; i < list.length; i++) {
+					if (list[i].id == typeId.value) {
+						name.value = list[i].name
+						break
+					}
+				}
+			})
+		} else {
+			uni.setNavigationBarTitle({ title: '新增分类' })
+		}
+	})
+
+	function save() {
+		if (saving.value) {
+			return
+		}
+		const n = name.value.trim()
+		if (n.length == 0) {
+			uni.showToast({ title: '请填写名称', icon: 'none' })
+			return
+		}
+		saving.value = true
+		if (typeId.value > 0) {
+			updateEatDishType(typeId.value, n).then(() => {
+				saving.value = false
+				uni.showToast({ title: '已保存', icon: 'success' })
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
+			}).catch((err) => {
+				saving.value = false
+				uni.showToast({ title: '' + err, icon: 'none' })
+			})
+		} else {
+			createEatDishType(n).then(() => {
+				saving.value = false
+				uni.showToast({ title: '已添加', icon: 'success' })
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 400)
+			}).catch((err) => {
+				saving.value = false
+				uni.showToast({ title: '' + err, icon: 'none' })
+			})
+		}
+	}
+</script>
+
+<style>
+	.page {
+		flex: 1;
+		background-color: #f5f5f5;
+		padding: 16px;
+	}
+
+	.form {
+		background-color: #ffffff;
+		border-radius: 12px;
+		padding: 16px;
+		margin-bottom: 20px;
+	}
+
+	.field {
+		margin-bottom: 18px;
+	}
+
+	.label {
+		font-size: 14px;
+		color: #666666;
+		margin-bottom: 8px;
+	}
+
+	.input {
+		height: 44px;
+		padding: 0 12px;
+		font-size: 15px;
+		background-color: #f5f5f5;
+		border-radius: 8px;
+	}
+
+	.save-btn {
+		background-color: #ff6b35;
+		border-radius: 24px;
+	}
+</style>

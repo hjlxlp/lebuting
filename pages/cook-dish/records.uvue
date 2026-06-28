@@ -10,6 +10,7 @@
 					<text class="row-time">{{ item.timeText }}</text>
 				</view>
 				<text class="row-meal">{{ item.mealText }}</text>
+				<text class="delete-link" @click="confirmDelete(item.id, item.label)">删除</text>
 			</view>
 		</scroll-view>
 
@@ -18,9 +19,10 @@
 </template>
 
 <script setup lang="uts">
-	import { listCookDishRecords, cookDishRecordLabel, cookDishMealLabel, type CookDishRecord } from '../../utils/cook-dish.uts'
+	import { listCookDishRecords, deleteCookDishRecord, cookDishRecordLabel, cookDishMealLabel, type CookDishRecord } from '../../utils/cook-dish.uts'
 
 	type Row = {
+		id: number
 		label: string
 		timeText: string
 		mealText: string
@@ -34,12 +36,28 @@
 			for (let i = 0; i < list.length; i++) {
 				const r = list[i]
 				rows.push({
+					id: r.id,
 					label: cookDishRecordLabel(r),
 					timeText: r.cooked_at,
 					mealText: cookDishMealLabel(r.meal)
 				})
 			}
 			items.value = rows
+		})
+	}
+
+	function confirmDelete(id: number, label: string) {
+		uni.showModal({
+			title: '删除记录',
+			content: '确定删除「' + label + '」这条记录？',
+			success: (res) => {
+				if (res.confirm) {
+					deleteCookDishRecord(id).then(() => {
+						loadList()
+						uni.showToast({ title: '已删除', icon: 'none' })
+					})
+				}
+			}
 		})
 	}
 
@@ -91,6 +109,13 @@
 		padding: 4px 10px;
 		background-color: #e6f4ea;
 		border-radius: 12px;
+		margin-right: 8px;
+	}
+
+	.delete-link {
+		font-size: 13px;
+		color: #e53935;
+		padding: 4px 8px;
 	}
 
 	.empty {

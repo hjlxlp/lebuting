@@ -27,3 +27,11 @@ class EatDishRecordCreate(BaseModel):
     meal: str | None = None
     source: str | None = None
     note: str = ""
+
+
+class EatDishTypeCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=20)
+
+
+class EatDishTypeUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=20)

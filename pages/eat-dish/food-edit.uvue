@@ -16,6 +16,7 @@
 						@click="type = t"
 					>{{ t }}</text>
 				</view>
+				<text class="type-manage" @click="goTypes">管理分类</text>
 			</view>
 			<view class="field">
 				<text class="label">备注</text>
@@ -23,25 +24,42 @@
 			</view>
 		</view>
 
-		<button class="save-btn" type="primary" @click="save">保存</button>
+		<button class="save-btn" type="primary" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
+		<button v-if="foodId > 0" class="delete-btn" @click="confirmDelete">删除候选</button>
 	</view>
 </template>
 
 <script setup lang="uts">
 	import {
-		EAT_DISH_TYPES,
 		getEatDishFood,
 		createEatDishFood,
-		updateEatDishFood
+		updateEatDishFood,
+		deleteEatDishFood,
+		listEatDishTypes
 	} from '../../utils/eat-dish.uts'
 
 	const foodId = ref(0)
 	const name = ref('')
-	const type = ref('火锅')
+	const type = ref('')
 	const note = ref('')
-	const typeOptions = EAT_DISH_TYPES
+	const typeOptions = ref<string[]>([])
+	const saving = ref(false)
+
+	function loadTypes() {
+		listEatDishTypes().then((list) => {
+			const names: string[] = []
+			for (let i = 0; i < list.length; i++) {
+				names.push(list[i].name)
+			}
+			typeOptions.value = names
+			if (type.value.length == 0 && names.length > 0) {
+				type.value = names[0]
+			}
+		})
+	}
 
 	onLoad((options) => {
+		loadTypes()
 		const idStr = options['id']
 		if (idStr != null && ('' + idStr).length > 0) {
 			foodId.value = parseInt('' + idStr)
@@ -59,27 +77,64 @@
 	})
 
 	function save() {
+		if (saving.value) {
+			return
+		}
 		const n = name.value.trim()
 		if (n.length == 0) {
 			uni.showToast({ title: '请填写名称', icon: 'none' })
 			return
 		}
+		saving.value = true
 		if (foodId.value > 0) {
 			updateEatDishFood(foodId.value, n, type.value, note.value.trim()).then(() => {
+				saving.value = false
 				uni.showToast({ title: '已保存', icon: 'success' })
 				setTimeout(() => {
 					uni.navigateBack()
 				}, 400)
+			}).catch((err) => {
+				saving.value = false
+				uni.showToast({ title: '' + err, icon: 'none' })
 			})
 		} else {
 			createEatDishFood(n, type.value, note.value.trim()).then(() => {
+				saving.value = false
 				uni.showToast({ title: '已添加', icon: 'success' })
 				setTimeout(() => {
 					uni.navigateBack()
 				}, 400)
+			}).catch((err) => {
+				saving.value = false
+				uni.showToast({ title: '' + err, icon: 'none' })
 			})
 		}
 	}
+
+	function goTypes() {
+		uni.navigateTo({ url: '/pages/eat-dish/types' })
+	}
+
+	function confirmDelete() {
+		uni.showModal({
+			title: '删除候选',
+			content: '确定删除？相关记录也会删除',
+			success: (res) => {
+				if (res.confirm) {
+					deleteEatDishFood(foodId.value).then(() => {
+						uni.showToast({ title: '已删除', icon: 'success' })
+						setTimeout(() => {
+							uni.navigateBack()
+						}, 400)
+					})
+				}
+			}
+		})
+	}
+
+	onShow(() => {
+		loadTypes()
+	})
 </script>
 
 <style>
@@ -135,8 +190,24 @@
 		font-weight: bold;
 	}
 
+	.type-manage {
+		font-size: 13px;
+		color: #ff6b35;
+		margin-top: 8px;
+	}
+
 	.save-btn {
 		background-color: #ff6b35;
+		border-radius: 24px;
+		margin-bottom: 12px;
+	}
+
+	.delete-btn {
+		background-color: #ffffff;
+		color: #e53935;
+		border-width: 1px;
+		border-color: #e53935;
+		border-style: solid;
 		border-radius: 24px;
 	}
 </style>

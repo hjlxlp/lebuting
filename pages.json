@@ -25,6 +25,18 @@
 			}
 		},
 		{
+			"path": "pages/eat-dish/types",
+			"style": {
+				"navigationBarTitleText": "分类管理"
+			}
+		},
+		{
+			"path": "pages/eat-dish/type-edit",
+			"style": {
+				"navigationBarTitleText": "编辑分类"
+			}
+		},
+		{
 			"path": "pages/eat-dish/excluded",
 			"style": {
 				"navigationBarTitleText": "今天不吃"
@@ -58,6 +70,18 @@
 			"path": "pages/cook-dish/food-edit",
 			"style": {
 				"navigationBarTitleText": "编辑候选"
+			}
+		},
+		{
+			"path": "pages/cook-dish/types",
+			"style": {
+				"navigationBarTitleText": "分类管理"
+			}
+		},
+		{
+			"path": "pages/cook-dish/type-edit",
+			"style": {
+				"navigationBarTitleText": "编辑分类"
 			}
 		},
 		{

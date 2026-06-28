@@ -44,5 +44,6 @@ slug → 后端包+表 → `utils/{slug}.uts` → `pages/{slug}/` → `pages.jso
 ## 约定
 
 - 页面只调 `utils/`，不硬编码 URL
+- 业务 API 统一 HTTP **200**，`{ code: 0, message, data }`；业务失败 `code != 0`，`message` 直接 toast 给用户
 - 本地 backend：`conda activate lebuting` 后 `uvicorn main:app --host 0.0.0.0 --port 8181`
 - 业务 SQLite 与 Hermes `state.db` 分离
