@@ -1,7 +1,6 @@
 <template>
 	<view class="page">
 		<view class="toolbar">
-			<text class="mock-tag">假数据</text>
 			<button class="add-btn" type="primary" size="mini" @click="goAdd">+ 新增</button>
 		</view>
 
@@ -88,18 +87,9 @@
 
 	.toolbar {
 		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-end;
 		padding: 10px 16px;
 		background-color: #ffffff;
-	}
-
-	.mock-tag {
-		font-size: 11px;
-		color: #34a853;
-		background-color: #e6f4ea;
-		padding: 2px 8px;
-		border-radius: 10px;
 	}
 
 	.add-btn {

@@ -29,7 +29,7 @@ App（uni-app x）+ 笔记本 Hermes（:8642）+ 业务 FastAPI（:8181，SQLite
 | 模块 | slug | API | 表 | 前端 |
 |------|------|-----|-----|------|
 | 吃什么菜 | `eat-dish` | `/api/eat-dish` | `eat_dish_*` | `pages/eat-dish/`、`utils/eat-dish.uts` |
-| 做什么菜 | `cook-dish` | `/api/cook-dish`（待接） | `cook_dish_*` | `pages/cook-dish/`、`utils/cook-dish.uts` |
+| 做什么菜 | `cook-dish` | `/api/cook-dish` | `cook_dish_*` | `pages/cook-dish/`、`utils/cook-dish.uts` |
 
 后端：`backend/app/{slug_underscore}/`（`db.py` `router.py` `schemas.py`），`main.py` 挂载 `/api/{slug}`。
 

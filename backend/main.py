@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import API_PORT
 from app.database import init_db
+from app.cook_dish.router import router as cook_dish_router
 from app.eat_dish.router import router as eat_dish_router
 
 
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(eat_dish_router, prefix="/api/eat-dish")
+app.include_router(cook_dish_router, prefix="/api/cook-dish")
 
 
 @app.get("/health")
