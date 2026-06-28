@@ -27,8 +27,8 @@
 			<view class="module-card chat-card" @click="goChat">
 				<text class="module-icon">💬</text>
 				<view class="module-info">
-					<text class="module-title">Hermes 对话</text>
-					<text class="module-sub">连接 Hermes Agent 聊天</text>
+					<text class="module-title">渣渣乐agent</text>
+					<text class="module-sub">和渣渣乐agent聊天</text>
 				</view>
 				<text class="module-arrow">›</text>
 			</view>

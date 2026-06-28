@@ -8,7 +8,7 @@
 
 		<scroll-view class="message-list" scroll-y="true" :scroll-into-view="scrollIntoView">
 			<view v-if="displayMessages.length == 0" class="empty-tip">
-				<text class="empty-text">连接 Hermes 后即可开始对话</text>
+				<text class="empty-text">连接渣渣乐agent后即可开始对话</text>
 			</view>
 			<view
 				v-for="(item, index) in displayMessages"
@@ -60,7 +60,7 @@
 	const inputText = ref('')
 	const loading = ref(false)
 	const connected = ref(false)
-	const statusText = ref('正在连接 Hermes...')
+	const statusText = ref('正在连接渣渣乐agent...')
 	const scrollIntoView = ref('msg-bottom')
 	const displayMessages = ref<DisplayMessage[]>([])
 	const chatHistory = ref<ChatMessage[]>([])
@@ -96,7 +96,7 @@
 	}
 
 	function testConnection() {
-		statusText.value = '正在连接...'
+		statusText.value = '正在连接渣渣乐agent...'
 		connected.value = false
 		checkHealth().then((info: string) => {
 			connected.value = true

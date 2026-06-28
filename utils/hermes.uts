@@ -54,7 +54,12 @@ export function checkHealth(): Promise<string> {
 			success: (res) => {
 				if (res.statusCode == 200 && res.data != null) {
 					const data = res.data!
-					resolve(data.platform + ' v' + data.version)
+					const ver = data.version != null && data.version.length > 0 ? data.version : ''
+					if (ver.length > 0) {
+						resolve('渣渣乐agent v' + ver)
+					} else {
+						resolve('渣渣乐agent')
+					}
 				} else {
 					reject('健康检查失败: ' + res.statusCode)
 				}
