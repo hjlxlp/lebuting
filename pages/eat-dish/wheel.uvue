@@ -2,7 +2,9 @@
 	<view class="page">
 		<scroll-view class="main-scroll" scroll-y="true">
 			<view class="top-bar">
-				<text class="pool-text">转盘池 {{ poolSize }} 个</text>
+				<text class="pool-text" v-if="poolLoading">加载转盘池...</text>
+				<text class="pool-text error-text" v-else-if="poolError.length > 0" @click="loadPool">{{ poolError }} · 点击重试</text>
+				<text class="pool-text" v-else>转盘池 {{ poolSize }} 个</text>
 			</view>
 
 			<view class="wheel-area">
@@ -27,9 +29,9 @@
 				<text class="result-name">{{ resultLabel }}</text>
 				<text class="result-meta">本月已吃 {{ resultMonthCount }} 次</text>
 				<view class="result-actions">
-					<button class="action-btn primary-btn" size="mini" type="primary" @click="doRecord">记一笔</button>
-					<button class="action-btn" size="mini" @click="doExclude">今天不吃</button>
-					<button class="action-btn" size="mini" @click="doSpin">再转</button>
+					<button class="action-btn primary-btn" size="mini" type="primary" :disabled="actionBusy" @click="doRecord">记一笔</button>
+					<button class="action-btn" size="mini" :disabled="actionBusy" @click="doExclude">今天不吃</button>
+					<button class="action-btn" size="mini" :disabled="spinning" @click="doSpin">再转</button>
 				</view>
 			</view>
 
@@ -65,7 +67,10 @@
 
 	const poolSize = ref(0)
 	const poolList = ref<PoolItem[]>([])
+	const poolLoading = ref(false)
+	const poolError = ref('')
 	const spinning = ref(false)
+	const actionBusy = ref(false)
 	const wheelRotate = ref(0)
 	const resultFood = ref<EatDishFood | null>(null)
 	const resultLabel = ref('')
@@ -77,15 +82,20 @@
 		} as UTSJSONObject
 	})
 
-	function loadPool() {
-		getEatDishWheelPool().then((list: EatDishFood[]) => {
+	function loadPool(): Promise<void> {
+		poolLoading.value = true
+		poolError.value = ''
+		return getEatDishWheelPool().then((list: EatDishFood[]) => {
 			poolSize.value = list.length
 			const items: PoolItem[] = []
 			for (let i = 0; i < list.length; i++) {
 				items.push({ label: eatDishLabel(list[i]) })
 			}
 			poolList.value = items
+			poolLoading.value = false
 		}).catch((err) => {
+			poolError.value = '' + err
+			poolLoading.value = false
 			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
@@ -93,6 +103,8 @@
 	function refreshMonthCount(foodId: number) {
 		getEatDishMonthCount(foodId).then((count: number) => {
 			resultMonthCount.value = count
+		}).catch((err) => {
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
@@ -117,31 +129,45 @@
 	}
 
 	function doRecord() {
-		if (resultFood.value == null) {
+		if (resultFood.value == null || actionBusy.value) {
 			return
 		}
+		actionBusy.value = true
 		addEatDishRecord(resultFood.value!.id).then(() => {
+			actionBusy.value = false
 			refreshMonthCount(resultFood.value!.id)
 			uni.showToast({ title: '已记录', icon: 'success' })
 		}).catch((err) => {
+			actionBusy.value = false
 			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
 	function doExclude() {
-		if (resultFood.value == null) {
+		if (resultFood.value == null || actionBusy.value) {
 			return
 		}
+		actionBusy.value = true
 		const id = resultFood.value!.id
 		setEatDishExcluded(id, true).then(() => {
+			actionBusy.value = false
 			resultFood.value = null
 			loadPool()
 			uni.showToast({ title: '已排除', icon: 'none' })
+		}).catch((err) => {
+			actionBusy.value = false
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
 	onShow(() => {
 		loadPool()
+	})
+
+	onPullDownRefresh(() => {
+		loadPool().then(() => {
+			uni.stopPullDownRefresh()
+		})
 	})
 </script>
 
@@ -164,6 +190,10 @@
 	.pool-text {
 		font-size: 14px;
 		color: #666666;
+	}
+
+	.error-text {
+		color: #e53935;
 	}
 
 	.wheel-area {

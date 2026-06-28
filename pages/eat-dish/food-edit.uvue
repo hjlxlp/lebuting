@@ -55,6 +55,8 @@
 			if (type.value.length == 0 && names.length > 0) {
 				type.value = names[0]
 			}
+		}).catch((err) => {
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
@@ -70,6 +72,8 @@
 					type.value = food.type
 					note.value = food.note
 				}
+			}).catch((err) => {
+				uni.showToast({ title: '' + err, icon: 'none' })
 			})
 		} else {
 			uni.setNavigationBarTitle({ title: '新增候选' })
@@ -126,6 +130,8 @@
 						setTimeout(() => {
 							uni.navigateBack()
 						}, 400)
+					}).catch((err) => {
+						uni.showToast({ title: '' + err, icon: 'none' })
 					})
 				}
 			}

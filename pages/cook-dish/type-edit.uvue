@@ -30,6 +30,8 @@
 						break
 					}
 				}
+			}).catch((err) => {
+				uni.showToast({ title: '' + err, icon: 'none' })
 			})
 		} else {
 			uni.setNavigationBarTitle({ title: '新增分类' })

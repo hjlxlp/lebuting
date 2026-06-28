@@ -6,5 +6,3 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "lebuting.db"
 API_PORT = 8181
-
-FOOD_TYPES = ["火锅", "烧烤", "面食", "米饭", "快餐", "轻食", "日料", "韩餐", "西餐", "其他"]

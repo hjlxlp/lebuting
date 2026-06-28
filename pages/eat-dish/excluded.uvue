@@ -5,7 +5,14 @@
 		</view>
 
 		<scroll-view class="list" scroll-y="true">
-			<view v-if="items.length == 0" class="empty">
+			<view v-if="loading" class="empty">
+				<text class="empty-text">加载中...</text>
+			</view>
+			<view v-else-if="loadError.length > 0" class="empty">
+				<text class="empty-text error-text">{{ loadError }}</text>
+				<text class="retry-link" @click="loadList">点击重试</text>
+			</view>
+			<view v-else-if="items.length == 0" class="empty">
 				<text class="empty-text">没有排除项</text>
 			</view>
 			<view v-for="(item, index) in items" :key="index" class="row">
@@ -27,14 +34,23 @@
 	}
 
 	const items = ref<Row[]>([])
+	const loading = ref(false)
+	const loadError = ref('')
 
-	function loadList() {
-		listEatDishFoods(true).then((list: EatDishFood[]) => {
+	function loadList(): Promise<void> {
+		loading.value = true
+		loadError.value = ''
+		return listEatDishFoods(true).then((list: EatDishFood[]) => {
 			const rows: Row[] = []
 			for (let i = 0; i < list.length; i++) {
 				rows.push({ id: list[i].id, label: eatDishLabel(list[i]) })
 			}
 			items.value = rows
+			loading.value = false
+		}).catch((err) => {
+			loadError.value = '' + err
+			loading.value = false
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
@@ -42,11 +58,19 @@
 		setEatDishExcluded(id, false).then(() => {
 			loadList()
 			uni.showToast({ title: '已恢复', icon: 'success' })
+		}).catch((err) => {
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
 	onShow(() => {
 		loadList()
+	})
+
+	onPullDownRefresh(() => {
+		loadList().then(() => {
+			uni.stopPullDownRefresh()
+		})
 	})
 </script>
 
@@ -99,5 +123,16 @@
 	.empty-text {
 		font-size: 14px;
 		color: #999999;
+	}
+
+	.error-text {
+		color: #e53935;
+		text-align: center;
+	}
+
+	.retry-link {
+		font-size: 14px;
+		color: #ff6b35;
+		margin-top: 12px;
 	}
 </style>

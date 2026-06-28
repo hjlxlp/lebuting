@@ -1,13 +1,20 @@
 <template>
 	<view class="page">
-		<view class="summary-card">
+		<view v-if="loading" class="summary-card summary-loading">
+			<text class="summary-title">加载中...</text>
+		</view>
+		<view v-else-if="loadError.length > 0" class="summary-card summary-error">
+			<text class="summary-title error-text">{{ loadError }}</text>
+			<text class="retry-link" @click="loadStats">点击重试</text>
+		</view>
+		<view v-else class="summary-card">
 			<text class="summary-title">{{ month }} 统计</text>
 			<text class="summary-count">共吃了 {{ totalCount }} 次</text>
 		</view>
 
 		<scroll-view class="list" scroll-y="true">
 			<text class="section-title">本月榜单</text>
-			<view v-if="ranking.length == 0" class="empty">
+			<view v-if="!loading && loadError.length == 0 && ranking.length == 0" class="empty">
 				<text class="empty-text">本月还没有记录</text>
 			</view>
 			<view v-for="(item, index) in ranking" :key="index" class="row">
@@ -25,7 +32,7 @@
 </template>
 
 <script setup lang="uts">
-	import { getEatDishStatsSummary } from '../../utils/eat-dish.uts'
+	import { getEatDishStatsSummary, formatEatDishShortDate } from '../../utils/eat-dish.uts'
 
 	type RankRow = {
 		food_id: number
@@ -39,16 +46,13 @@
 	const month = ref('')
 	const totalCount = ref(0)
 	const ranking = ref<RankRow[]>([])
+	const loading = ref(false)
+	const loadError = ref('')
 
-	function shortDate(dateTime: string): string {
-		if (dateTime.length >= 10) {
-			return dateTime.substring(5, 10)
-		}
-		return dateTime
-	}
-
-	function loadStats() {
-		getEatDishStatsSummary().then((summary) => {
+	function loadStats(): Promise<void> {
+		loading.value = true
+		loadError.value = ''
+		return getEatDishStatsSummary().then((summary) => {
 			month.value = summary.month
 			totalCount.value = summary.total_count
 			const rows: RankRow[] = []
@@ -60,15 +64,26 @@
 					total: s.total,
 					month_count: s.month_count,
 					last_eaten_at: s.last_eaten_at,
-					lastShort: shortDate(s.last_eaten_at)
+					lastShort: formatEatDishShortDate(s.last_eaten_at)
 				})
 			}
 			ranking.value = rows
+			loading.value = false
+		}).catch((err) => {
+			loadError.value = '' + err
+			loading.value = false
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
 	onShow(() => {
 		loadStats()
+	})
+
+	onPullDownRefresh(() => {
+		loadStats().then(() => {
+			uni.stopPullDownRefresh()
+		})
 	})
 </script>
 
@@ -86,10 +101,24 @@
 		border-radius: 14px;
 	}
 
+	.summary-loading {
+		background-color: #ffffff;
+	}
+
+	.summary-error {
+		background-color: #ffffff;
+		align-items: center;
+	}
+
 	.summary-title {
 		font-size: 14px;
 		color: rgba(255, 255, 255, 0.85);
 		margin-bottom: 6px;
+	}
+
+	.summary-loading .summary-title,
+	.summary-error .summary-title {
+		color: #666666;
 	}
 
 	.summary-count {
@@ -162,5 +191,16 @@
 	.empty-text {
 		font-size: 14px;
 		color: #999999;
+	}
+
+	.error-text {
+		color: #e53935;
+		text-align: center;
+	}
+
+	.retry-link {
+		font-size: 14px;
+		color: #ff6b35;
+		margin-top: 8px;
 	}
 </style>

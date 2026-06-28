@@ -5,7 +5,14 @@
 		</view>
 
 		<scroll-view class="list" scroll-y="true">
-			<view v-if="items.length == 0" class="empty">
+			<view v-if="loading" class="empty">
+				<text class="empty-text">加载中...</text>
+			</view>
+			<view v-else-if="loadError.length > 0" class="empty">
+				<text class="empty-text error-text">{{ loadError }}</text>
+				<text class="retry-link" @click="loadList">点击重试</text>
+			</view>
+			<view v-else-if="items.length == 0" class="empty">
 				<text class="empty-text">还没有分类</text>
 			</view>
 			<view v-for="(item, index) in items" :key="index" class="row">
@@ -28,14 +35,23 @@
 	}
 
 	const items = ref<TypeRow[]>([])
+	const loading = ref(false)
+	const loadError = ref('')
 
 	function loadList() {
+		loading.value = true
+		loadError.value = ''
 		listEatDishTypes().then((list: EatDishType[]) => {
 			const rows: TypeRow[] = []
 			for (let i = 0; i < list.length; i++) {
 				rows.push({ id: list[i].id, name: list[i].name })
 			}
 			items.value = rows
+			loading.value = false
+		}).catch((err) => {
+			loadError.value = '' + err
+			loading.value = false
+			uni.showToast({ title: '' + err, icon: 'none' })
 		})
 	}
 
@@ -128,5 +144,16 @@
 	.empty-text {
 		font-size: 14px;
 		color: #999999;
+	}
+
+	.error-text {
+		color: #e53935;
+		text-align: center;
+	}
+
+	.retry-link {
+		font-size: 14px;
+		color: #ff6b35;
+		margin-top: 12px;
 	}
 </style>

@@ -35,6 +35,7 @@
 
 	function goTab(item: TabItem) {
 		if (props.current == item.key) {
+			uni.startPullDownRefresh()
 			return
 		}
 		uni.redirectTo({ url: item.url })

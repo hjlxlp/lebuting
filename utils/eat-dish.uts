@@ -60,8 +60,6 @@ export type EatDishType = {
 	sort_order: number
 }
 
-export const EAT_DISH_TYPES = ['火锅', '烧烤', '面食', '米饭', '快餐', '轻食', '日料', '韩餐', '西餐', '其他']
-
 type ApiPayload = UTSJSONObject
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 type ApiEnvelope = {
@@ -245,6 +243,23 @@ export function eatDishMealLabel(meal: string): string {
 	if (meal == 'lunch') return '午餐'
 	if (meal == 'dinner') return '晚餐'
 	return '加餐'
+}
+
+export function formatEatDishDateTime(dateTime: string): string {
+	if (dateTime.length >= 16) {
+		return dateTime.substring(5, 16)
+	}
+	if (dateTime.length >= 10) {
+		return dateTime.substring(0, 10)
+	}
+	return dateTime
+}
+
+export function formatEatDishShortDate(dateTime: string): string {
+	if (dateTime.length >= 10) {
+		return dateTime.substring(5, 10)
+	}
+	return dateTime
 }
 
 export function listEatDishFoods(excluded: boolean | null = null): Promise<EatDishFood[]> {

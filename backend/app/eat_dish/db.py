@@ -1,6 +1,7 @@
 import sqlite3
 
 from app.core import get_conn, now_str
+from app.migrations import backfill_type_ids
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS eat_dish_foods (
@@ -109,36 +110,43 @@ def row_to_type(row: sqlite3.Row) -> dict:
     }
 
 
-def _seed_types(conn: sqlite3.Connection) -> None:
-    count = conn.execute("SELECT COUNT(*) FROM eat_dish_types").fetchone()[0]
-    if count > 0:
-        return
+def sync_eat_dish_types(conn: sqlite3.Connection) -> None:
+    """空表写入默认分类；始终把 foods 中 orphan type 补进分类表并回填 type_id。"""
     ts = now_str()
+    count = conn.execute("SELECT COUNT(*) FROM eat_dish_types").fetchone()[0]
     seen: set[str] = set()
-    for i, name in enumerate(DEFAULT_TYPES):
-        conn.execute(
-            "INSERT INTO eat_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
-            (name, i, ts),
-        )
-        seen.add(name)
+    if count == 0:
+        for i, name in enumerate(DEFAULT_TYPES):
+            conn.execute(
+                "INSERT INTO eat_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
+                (name, i, ts),
+            )
+            seen.add(name)
+    else:
+        rows = conn.execute("SELECT name FROM eat_dish_types").fetchall()
+        seen = {r["name"] for r in rows}
+    max_order = conn.execute(
+        "SELECT COALESCE(MAX(sort_order), -1) FROM eat_dish_types"
+    ).fetchone()[0]
+    order = max_order + 1
     rows = conn.execute("SELECT DISTINCT type FROM eat_dish_foods").fetchall()
-    order = len(seen)
     for r in rows:
-        typ = r["type"]
-        if typ not in seen:
+        typ = (r["type"] or "").strip()
+        if typ and typ not in seen:
             conn.execute(
                 "INSERT INTO eat_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
                 (typ, order, ts),
             )
             seen.add(typ)
             order += 1
+    backfill_type_ids(conn, "eat_dish_foods", "eat_dish_types")
 
 
 def init_eat_dish_db() -> None:
     with get_conn() as conn:
         _migrate_legacy_tables(conn)
         conn.executescript(SCHEMA_SQL)
-        _seed_types(conn)
+        sync_eat_dish_types(conn)
         count = conn.execute("SELECT COUNT(*) FROM eat_dish_foods").fetchone()[0]
         if count == 0:
             ts = now_str()

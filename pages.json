@@ -7,106 +7,128 @@
 			}
 		},
 		{
-			"path": "pages/eat-dish/wheel",
-			"style": {
-				"navigationBarTitleText": "吃什么菜"
-			}
-		},
-		{
-			"path": "pages/eat-dish/foods",
-			"style": {
-				"navigationBarTitleText": "我的候选"
-			}
-		},
-		{
-			"path": "pages/eat-dish/food-edit",
-			"style": {
-				"navigationBarTitleText": "编辑候选"
-			}
-		},
-		{
-			"path": "pages/eat-dish/types",
-			"style": {
-				"navigationBarTitleText": "分类管理"
-			}
-		},
-		{
-			"path": "pages/eat-dish/type-edit",
-			"style": {
-				"navigationBarTitleText": "编辑分类"
-			}
-		},
-		{
-			"path": "pages/eat-dish/excluded",
-			"style": {
-				"navigationBarTitleText": "今天不吃"
-			}
-		},
-		{
-			"path": "pages/eat-dish/records",
-			"style": {
-				"navigationBarTitleText": "吃过记录"
-			}
-		},
-		{
-			"path": "pages/eat-dish/stats",
-			"style": {
-				"navigationBarTitleText": "统计"
-			}
-		},
-		{
-			"path": "pages/cook-dish/wheel",
-			"style": {
-				"navigationBarTitleText": "做什么菜"
-			}
-		},
-		{
-			"path": "pages/cook-dish/foods",
-			"style": {
-				"navigationBarTitleText": "我的候选"
-			}
-		},
-		{
-			"path": "pages/cook-dish/food-edit",
-			"style": {
-				"navigationBarTitleText": "编辑候选"
-			}
-		},
-		{
-			"path": "pages/cook-dish/types",
-			"style": {
-				"navigationBarTitleText": "分类管理"
-			}
-		},
-		{
-			"path": "pages/cook-dish/type-edit",
-			"style": {
-				"navigationBarTitleText": "编辑分类"
-			}
-		},
-		{
-			"path": "pages/cook-dish/excluded",
-			"style": {
-				"navigationBarTitleText": "今天不做"
-			}
-		},
-		{
-			"path": "pages/cook-dish/records",
-			"style": {
-				"navigationBarTitleText": "做过记录"
-			}
-		},
-		{
-			"path": "pages/cook-dish/stats",
-			"style": {
-				"navigationBarTitleText": "统计"
-			}
-		},
-		{
 			"path": "pages/chat/chat",
 			"style": {
 				"navigationBarTitleText": "Hermes 对话"
 			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "pages/eat-dish",
+			"pages": [
+				{
+					"path": "wheel",
+					"style": {
+						"navigationBarTitleText": "吃什么菜",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "foods",
+					"style": {
+						"navigationBarTitleText": "吃饭候选",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "food-edit",
+					"style": {
+						"navigationBarTitleText": "编辑吃饭候选"
+					}
+				},
+				{
+					"path": "types",
+					"style": {
+						"navigationBarTitleText": "吃饭分类"
+					}
+				},
+				{
+					"path": "type-edit",
+					"style": {
+						"navigationBarTitleText": "编辑吃饭分类"
+					}
+				},
+				{
+					"path": "excluded",
+					"style": {
+						"navigationBarTitleText": "今天不吃",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "records",
+					"style": {
+						"navigationBarTitleText": "吃过记录",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "stats",
+					"style": {
+						"navigationBarTitleText": "吃饭统计",
+						"enablePullDownRefresh": true
+					}
+				}
+			]
+		},
+		{
+			"root": "pages/cook-dish",
+			"pages": [
+				{
+					"path": "wheel",
+					"style": {
+						"navigationBarTitleText": "做什么菜",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "foods",
+					"style": {
+						"navigationBarTitleText": "做菜候选",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "food-edit",
+					"style": {
+						"navigationBarTitleText": "编辑做菜候选"
+					}
+				},
+				{
+					"path": "types",
+					"style": {
+						"navigationBarTitleText": "做菜分类"
+					}
+				},
+				{
+					"path": "type-edit",
+					"style": {
+						"navigationBarTitleText": "编辑做菜分类"
+					}
+				},
+				{
+					"path": "excluded",
+					"style": {
+						"navigationBarTitleText": "今天不做",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "records",
+					"style": {
+						"navigationBarTitleText": "做过记录",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "stats",
+					"style": {
+						"navigationBarTitleText": "做菜统计",
+						"enablePullDownRefresh": true
+					}
+				}
+			]
 		}
 	],
 	"globalStyle": {

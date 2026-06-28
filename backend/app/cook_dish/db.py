@@ -1,6 +1,7 @@
 import sqlite3
 
 from app.core import get_conn, now_str
+from app.migrations import backfill_type_ids
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS cook_dish_foods (
@@ -60,6 +61,21 @@ SEED_RECORDS = [
 ]
 
 
+def _table_names(conn: sqlite3.Connection) -> set[str]:
+    rows = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()
+    return {r[0] for r in rows}
+
+
+def _migrate_legacy_tables(conn: sqlite3.Connection) -> None:
+    names = _table_names(conn)
+    if "cook_foods" in names and "cook_dish_foods" not in names:
+        conn.execute("ALTER TABLE cook_foods RENAME TO cook_dish_foods")
+    if "cook_records" in names and "cook_dish_records" not in names:
+        conn.execute("ALTER TABLE cook_records RENAME TO cook_dish_records")
+
+
 def row_to_food(row: sqlite3.Row) -> dict:
     return {
         "id": row["id"],
@@ -93,35 +109,42 @@ def row_to_type(row: sqlite3.Row) -> dict:
     }
 
 
-def _seed_types(conn: sqlite3.Connection) -> None:
-    count = conn.execute("SELECT COUNT(*) FROM cook_dish_types").fetchone()[0]
-    if count > 0:
-        return
+def sync_cook_dish_types(conn: sqlite3.Connection) -> None:
     ts = now_str()
+    count = conn.execute("SELECT COUNT(*) FROM cook_dish_types").fetchone()[0]
     seen: set[str] = set()
-    for i, name in enumerate(DEFAULT_TYPES):
-        conn.execute(
-            "INSERT INTO cook_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
-            (name, i, ts),
-        )
-        seen.add(name)
+    if count == 0:
+        for i, name in enumerate(DEFAULT_TYPES):
+            conn.execute(
+                "INSERT INTO cook_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
+                (name, i, ts),
+            )
+            seen.add(name)
+    else:
+        rows = conn.execute("SELECT name FROM cook_dish_types").fetchall()
+        seen = {r["name"] for r in rows}
+    max_order = conn.execute(
+        "SELECT COALESCE(MAX(sort_order), -1) FROM cook_dish_types"
+    ).fetchone()[0]
+    order = max_order + 1
     rows = conn.execute("SELECT DISTINCT type FROM cook_dish_foods").fetchall()
-    order = len(seen)
     for r in rows:
-        typ = r["type"]
-        if typ not in seen:
+        typ = (r["type"] or "").strip()
+        if typ and typ not in seen:
             conn.execute(
                 "INSERT INTO cook_dish_types (name, sort_order, created_at) VALUES (?, ?, ?)",
                 (typ, order, ts),
             )
             seen.add(typ)
             order += 1
+    backfill_type_ids(conn, "cook_dish_foods", "cook_dish_types")
 
 
 def init_cook_dish_db() -> None:
     with get_conn() as conn:
+        _migrate_legacy_tables(conn)
         conn.executescript(SCHEMA_SQL)
-        _seed_types(conn)
+        sync_cook_dish_types(conn)
         count = conn.execute("SELECT COUNT(*) FROM cook_dish_foods").fetchone()[0]
         if count == 0:
             ts = now_str()
