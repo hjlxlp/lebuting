@@ -1,0 +1,48 @@
+---
+description: lebuting 前端 UI 设计流程。改 .uvue 页面视觉、布局、美化、空态/列表样式时读；配合 frontend-design skill 与 uni-app-x 规则。
+globs: pages/**/*.uvue,components/**/*.uvue
+alwaysApply: false
+---
+
+# 前端 UI 设计（Cursor）
+
+## 已安装 Skill
+
+| 项 | 路径 |
+|----|------|
+| **frontend-design** | `.agents/skills/frontend-design/SKILL.md` |
+| UTS / 样式约束 | `.cursor/rules/uni-app-x.mdc` |
+
+改页面视觉时 **两条都要遵守**：Skill 管审美与信息层次，`uni-app-x` 管 UTS 写法与 CSS 子集（禁 `%` 宽度、用 `px`、边框写全等）。
+
+## 模块视觉锚点（已有，勿随意改主色）
+
+| 模块 | 主色 | 场景 |
+|------|------|------|
+| eat-dish | `#ff6b35` | 外出吃什么 |
+| cook-dish | `#34a853` | 在家做什么 |
+| chat | `#007aff` | 渣渣乐agent 对话 |
+
+## Agent 工作流
+
+1. 读 `frontend-design` skill：先简短设计方向（色板、层级、签名元素），再写代码  
+2. 只改用户点名的页面/组件，不扩散无关文件  
+3. 改完对照 `uni-app-x.mdc` 自检（Promise、API 封装仍在 `utils/*.uts`）  
+4. H5 刷新 / App 重编后在 HBuilderX 真机看一眼
+
+## 提示词示例
+
+```
+按 frontend-design skill 优化 pages/eat-dish/wheel.uvue：
+保持 eat-dish 橙色主题；遵守 uni-app-x 规则；不动 utils 与 backend。
+```
+
+## 安装 / 更新 Skill（项目级）
+
+在仓库根目录：
+
+```bash
+npx skills add https://github.com/anthropics/skills --skill frontend-design -a cursor -y
+```
+
+装到本机所有项目加 `-g`。国内 GitHub 不通时可手动把 `skills/frontend-design/` 拷到 `.agents/skills/frontend-design/`。
