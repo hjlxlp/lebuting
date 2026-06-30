@@ -1,0 +1,57 @@
+<template>
+	<view v-if="visible" class="result-panel">
+		<text class="result-name">{{ name }}</text>
+		<text class="result-meta" :style="metaStyle">{{ meta }}</text>
+		<view class="result-btns">
+			<slot></slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { getModuleConfig } from '../../utils/module-config.uts'
+
+	const props = defineProps({
+		module: { type: String, default: 'eat-dish' },
+		visible: { type: Boolean, default: false },
+		name: { type: String, default: '' },
+		meta: { type: String, default: '' }
+	})
+
+	const metaStyle = computed((): UTSJSONObject => {
+		return { color: getModuleConfig(props.module).themeColor } as UTSJSONObject
+	})
+</script>
+
+<style lang="scss">
+	.result-panel {
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-bottom: 12px;
+		padding: 18px;
+		background-color: $lb-card;
+		border-radius: $lb-radius;
+		align-items: center;
+	}
+
+	.result-name {
+		font-size: 20px;
+		font-weight: 600;
+		color: $lb-text;
+		margin-top: 8px;
+		margin-bottom: 4px;
+		text-align: center;
+	}
+
+	.result-meta {
+		font-size: 13px;
+		text-align: center;
+	}
+
+	.result-btns {
+		flex-direction: row;
+		justify-content: center;
+		flex-wrap: wrap;
+		margin-top: 14px;
+	}
+</style>

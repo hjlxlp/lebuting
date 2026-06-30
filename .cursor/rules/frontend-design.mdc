@@ -19,8 +19,8 @@ alwaysApply: false
 
 | 模块 | 主色 | 场景 |
 |------|------|------|
-| eat-dish | `#ff6b35` | 外出吃什么 |
-| cook-dish | `#34a853` | 在家做什么 |
+| eat-dish | `#e85d5d` | 外出吃什么 |
+| cook-dish | `#3d9b5c` | 在家做什么 |
 | chat | `#007aff` | 渣渣乐agent 对话 |
 
 ## Agent 工作流

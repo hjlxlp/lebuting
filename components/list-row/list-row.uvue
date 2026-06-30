@@ -1,0 +1,105 @@
+<template>
+	<view class="list-row" :class="flat ? 'list-row-flat' : ''" @click="onTap">
+		<text v-if="rank.length > 0" class="list-row-rank" :style="rankStyleObj">{{ rank }}</text>
+		<view class="list-row-main">
+			<text class="list-row-title">{{ title }}</text>
+			<text v-if="subtitle.length > 0" class="list-row-sub">{{ subtitle }}</text>
+		</view>
+		<view v-if="hasOps" class="list-row-ops">
+			<slot name="ops"></slot>
+		</view>
+		<view v-if="hasRight" class="list-row-right">
+			<slot name="right"></slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const props = defineProps({
+		title: { type: String, default: '' },
+		subtitle: { type: String, default: '' },
+		rank: { type: String, default: '' },
+		rankColor: { type: String, default: '#cccccc' },
+		flat: { type: Boolean, default: false },
+		tappable: { type: Boolean, default: false },
+		hasOps: { type: Boolean, default: false },
+		hasRight: { type: Boolean, default: false }
+	})
+
+	const rankStyleObj = computed((): UTSJSONObject => {
+		return { color: props.rankColor } as UTSJSONObject
+	})
+
+	const emit = defineEmits(['click'])
+
+	function onTap() {
+		if (props.tappable) {
+			emit('click')
+		}
+	}
+</script>
+
+<style lang="scss">
+	.list-row {
+		flex-direction: row;
+		align-items: center;
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-bottom: 8px;
+		padding-top: 14px;
+		padding-bottom: 14px;
+		padding-left: 16px;
+		padding-right: 16px;
+		background-color: $lb-card;
+		border-radius: $lb-radius-sm;
+	}
+
+	.list-row-flat {
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: 0;
+		border-radius: 0;
+		border-bottom-width: 1px;
+		border-bottom-color: $lb-line;
+		border-bottom-style: solid;
+	}
+
+	.list-row-main {
+		flex: 1;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.list-row-rank {
+		width: 22px;
+		font-size: 15px;
+		font-weight: 700;
+		text-align: center;
+		flex-shrink: 0;
+		margin-right: 8px;
+	}
+
+	.list-row-title {
+		font-size: 15px;
+		font-weight: 500;
+		color: $lb-text;
+	}
+
+	.list-row-sub {
+		font-size: 12px;
+		color: $lb-text-3;
+		margin-top: 2px;
+	}
+
+	.list-row-ops {
+		flex-direction: row;
+		flex-shrink: 0;
+		margin-left: 8px;
+	}
+
+	.list-row-right {
+		flex-shrink: 0;
+		margin-left: 8px;
+		align-items: flex-end;
+	}
+</style>

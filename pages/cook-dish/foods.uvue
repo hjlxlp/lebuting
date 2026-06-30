@@ -1,42 +1,35 @@
 <template>
-	<view class="page">
-		<view class="toolbar">
-			<text class="types-link" @click="goTypes">分类</text>
-			<button class="add-btn" type="primary" size="mini" @click="goAdd">+ 新增</button>
-		</view>
-
-		<scroll-view class="list" scroll-y="true">
-			<view v-if="loading" class="empty">
-				<text class="empty-text">加载中...</text>
-			</view>
-			<view v-else-if="loadError.length > 0" class="empty">
-				<text class="empty-text error-text">{{ loadError }}</text>
-				<text class="retry-link" @click="loadList">点击重试</text>
-			</view>
-			<view v-else-if="items.length == 0" class="empty">
-				<text class="empty-text">还没有候选，点右上角新增</text>
-			</view>
-			<view v-for="(item, index) in items" :key="index" class="row">
-				<view class="row-main" @click="goEdit(item.id)">
-					<text class="row-label">{{ item.label }}</text>
-					<text v-if="item.note.length > 0" class="row-note">{{ item.note }}</text>
-				</view>
-				<view class="row-actions">
-					<text
-						class="action-link"
-						:class="item.excluded ? 'muted' : ''"
-						@click="toggleExclude(item.id, item.excluded)"
-					>{{ item.excluded ? '已排除' : '今天不做' }}</text>
-					<text class="action-link danger" @click="confirmDelete(item.id, item.label)">删除</text>
-				</view>
-			</view>
+	<view class="page-shell">
+		<topbar :title="config.foodsTitle"></topbar>
+		<tool-bar>
+			<text class="link-gray" @click="goTypes">分类</text>
+			<text class="add-btn" :style="addBtnStyle" @click="goAdd">+ 新增</text>
+		</tool-bar>
+		<scroll-view class="page-scroll-list-top" scroll-y="true">
+			<empty-state v-if="loading" text="加载中..."></empty-state>
+			<empty-state v-else-if="loadError.length > 0" :text="loadError" :error="true" :retry="true" themeColor="#3d9b5c" @retry="loadList"></empty-state>
+			<empty-state v-else-if="items.length == 0" text="还没有候选，点右上角新增"></empty-state>
+			<list-row
+				v-for="(item, index) in items"
+				:key="index"
+				:title="item.label"
+				:subtitle="item.note"
+				:tappable="true"
+				:hasOps="true"
+				@click="goEdit(item.id)"
+			>
+				<template v-slot:ops>
+					<text class="link-action" :class="item.excluded ? 'link-muted' : ''" @click.stop="toggleExclude(item.id, item.excluded)">{{ item.excluded ? config.excludeDone : config.excludeAction }}</text>
+					<text class="link-danger" @click.stop="confirmDelete(item.id, item.label)">删除</text>
+				</template>
+			</list-row>
 		</scroll-view>
-
-		<cook-dish-tab-bar current="foods"></cook-dish-tab-bar>
+		<tab-bar module="cook-dish" current="foods"></tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { COOK_DISH_CONFIG } from '../../utils/module-config.uts'
 	import { listCookDishFoods, setCookDishExcluded, deleteCookDishFood, cookDishLabel, type CookDishFood } from '../../utils/cook-dish.uts'
 
 	type FoodRow = {
@@ -46,9 +39,14 @@
 		excluded: boolean
 	}
 
+	const config = COOK_DISH_CONFIG
 	const items = ref<FoodRow[]>([])
 	const loading = ref(false)
 	const loadError = ref('')
+
+	const addBtnStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: config.themeColor } as UTSJSONObject
+	})
 
 	function loadList(): Promise<void> {
 		loading.value = true
@@ -125,98 +123,40 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		flex-direction: column;
-		background-color: #f5f5f5;
-	}
-
-	.toolbar {
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		padding: 10px 16px;
-		background-color: #ffffff;
-	}
-
-	.types-link {
-		font-size: 14px;
-		color: #34a853;
-		padding: 6px 8px;
+<style lang="scss">
+	.link-gray {
+		font-size: 13px;
+		color: $lb-text-3;
+		padding-top: 6px;
+		padding-bottom: 6px;
 	}
 
 	.add-btn {
-		background-color: #34a853;
-	}
-
-	.list {
-		flex: 1;
-		padding: 8px 16px;
-	}
-
-	.row {
-		flex-direction: row;
-		align-items: center;
-		background-color: #ffffff;
-		border-radius: 10px;
-		padding: 14px 12px;
-		margin-bottom: 8px;
-	}
-
-	.row-main {
-		flex: 1;
-		flex-direction: column;
-	}
-
-	.row-label {
-		font-size: 16px;
-		color: #333333;
-	}
-
-	.row-note {
-		font-size: 12px;
-		color: #999999;
-		margin-top: 4px;
-	}
-
-	.row-actions {
-		flex-direction: row;
-		margin-left: 8px;
-	}
-
-	.action-link {
 		font-size: 13px;
-		color: #34a853;
-		padding: 6px 8px;
+		font-weight: 500;
+		color: #ffffff;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 14px;
+		padding-right: 14px;
+		border-radius: 16px;
 	}
 
-	.danger {
-		color: #e53935;
+	.link-action {
+		font-size: 13px;
+		color: $lb-action;
+		padding-left: 6px;
+		padding-right: 6px;
 	}
 
-	.muted {
-		color: #cccccc;
+	.link-danger {
+		font-size: 13px;
+		color: $lb-eat;
+		padding-left: 6px;
+		padding-right: 6px;
 	}
 
-	.empty {
-		padding: 60px 20px;
-		align-items: center;
-	}
-
-	.empty-text {
-		font-size: 14px;
-		color: #999999;
-	}
-
-	.error-text {
-		color: #e53935;
-		text-align: center;
-	}
-
-	.retry-link {
-		font-size: 14px;
-		color: #34a853;
-		margin-top: 12px;
+	.link-muted {
+		color: $lb-text-3;
 	}
 </style>

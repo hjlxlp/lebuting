@@ -1,48 +1,55 @@
 <template>
-	<view class="page">
-		<scroll-view class="list" scroll-y="true">
-			<view v-if="loading" class="empty">
-				<text class="empty-text">加载中...</text>
-			</view>
-			<view v-else-if="loadError.length > 0" class="empty">
-				<text class="empty-text error-text">{{ loadError }}</text>
-				<text class="retry-link" @click="loadList">点击重试</text>
-			</view>
-			<view v-else-if="items.length == 0" class="empty">
-				<text class="empty-text">还没有记录，转盘选中后点「记一笔」</text>
-			</view>
-			<view v-for="(item, index) in items" :key="index" class="row">
-				<view class="row-left">
-					<text class="row-label">{{ item.label }}</text>
-					<text class="row-time">{{ item.timeText }}</text>
-				</view>
-				<text class="row-meal">{{ item.mealText }}</text>
-				<text class="delete-link" @click="confirmDelete(item.id, item.label)">删除</text>
+	<view class="page-shell">
+		<topbar :title="config.recordsTitle"></topbar>
+		<scroll-view class="page-scroll-tab" scroll-y="true">
+			<empty-state v-if="loading" text="加载中..."></empty-state>
+			<empty-state v-else-if="loadError.length > 0" :text="loadError" :error="true" :retry="true" themeColor="#3d9b5c" @retry="loadList"></empty-state>
+			<empty-state v-else-if="groups.length == 0" text="还没有记录，转盘选中后点「记一笔」"></empty-state>
+			<view v-for="(group, gIndex) in groups" :key="gIndex">
+				<section-title :text="group.dateLabel"></section-title>
+				<list-row
+					v-for="(item, index) in group.items"
+					:key="index"
+					:title="item.label"
+					:subtitle="item.mealText"
+					:hasRight="true"
+				>
+					<template v-slot:right>
+						<text class="record-time">{{ item.timeText }}</text>
+					</template>
+				</list-row>
 			</view>
 		</scroll-view>
-
-		<cook-dish-tab-bar current="records"></cook-dish-tab-bar>
+		<tab-bar module="cook-dish" current="records"></tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { COOK_DISH_CONFIG } from '../../utils/module-config.uts'
 	import {
 		listCookDishRecords,
-		deleteCookDishRecord,
 		cookDishRecordLabel,
 		cookDishMealLabel,
 		formatCookDishDateTime,
 		type CookDishRecord
 	} from '../../utils/cook-dish.uts'
 
-	type Row = {
+	type RecordRow = {
 		id: number
 		label: string
 		timeText: string
 		mealText: string
+		dateKey: string
+		dateLabel: string
 	}
 
-	const items = ref<Row[]>([])
+	type RecordGroup = {
+		dateLabel: string
+		items: RecordRow[]
+	}
+
+	const config = COOK_DISH_CONFIG
+	const groups = ref<RecordGroup[]>([])
 	const loading = ref(false)
 	const loadError = ref('')
 
@@ -50,39 +57,35 @@
 		loading.value = true
 		loadError.value = ''
 		return listCookDishRecords().then((list: CookDishRecord[]) => {
-			const rows: Row[] = []
+			const result: RecordGroup[] = []
+			let current: RecordGroup | null = null
 			for (let i = 0; i < list.length; i++) {
 				const r = list[i]
-				rows.push({
+				const full = formatCookDishDateTime(r.cooked_at)
+				const parts = full.split(' ')
+				const dateLabel = parts.length > 0 ? parts[0] : full
+				const timeText = parts.length > 1 ? parts[1] : ''
+				const row: RecordRow = {
 					id: r.id,
 					label: cookDishRecordLabel(r),
-					timeText: formatCookDishDateTime(r.cooked_at),
-					mealText: cookDishMealLabel(r.meal)
-				})
+					timeText: timeText,
+					mealText: cookDishMealLabel(r.meal),
+					dateKey: dateLabel,
+					dateLabel: dateLabel
+				}
+				if (current == null || current.dateLabel != dateLabel) {
+					current = { dateLabel: dateLabel, items: [row] }
+					result.push(current)
+				} else {
+					current.items.push(row)
+				}
 			}
-			items.value = rows
+			groups.value = result
 			loading.value = false
 		}).catch((err) => {
 			loadError.value = '' + err
 			loading.value = false
 			uni.showToast({ title: '' + err, icon: 'none' })
-		})
-	}
-
-	function confirmDelete(id: number, label: string) {
-		uni.showModal({
-			title: '删除记录',
-			content: '确定删除「' + label + '」这条记录？',
-			success: (res) => {
-				if (res.confirm) {
-					deleteCookDishRecord(id).then(() => {
-						loadList()
-						uni.showToast({ title: '已删除', icon: 'none' })
-					}).catch((err) => {
-						uni.showToast({ title: '' + err, icon: 'none' })
-					})
-				}
-			}
 		})
 	}
 
@@ -97,76 +100,10 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		flex-direction: column;
-		background-color: #f5f5f5;
-	}
-
-	.list {
-		flex: 1;
-		padding: 12px 16px;
-	}
-
-	.row {
-		flex-direction: row;
-		align-items: center;
-		background-color: #ffffff;
-		border-radius: 10px;
-		padding: 14px 12px;
-		margin-bottom: 8px;
-	}
-
-	.row-left {
-		flex: 1;
-		flex-direction: column;
-	}
-
-	.row-label {
-		font-size: 16px;
-		color: #333333;
-		margin-bottom: 4px;
-	}
-
-	.row-time {
-		font-size: 12px;
-		color: #999999;
-	}
-
-	.row-meal {
-		font-size: 13px;
-		color: #34a853;
-		padding: 4px 10px;
-		background-color: #e6f4ea;
-		border-radius: 12px;
-		margin-right: 8px;
-	}
-
-	.delete-link {
-		font-size: 13px;
-		color: #e53935;
-		padding: 4px 8px;
-	}
-
-	.empty {
-		padding: 60px 20px;
-		align-items: center;
-	}
-
-	.empty-text {
+<style lang="scss">
+	.record-time {
 		font-size: 14px;
-		color: #999999;
-		text-align: center;
-	}
-
-	.error-text {
-		color: #e53935;
-	}
-
-	.retry-link {
-		font-size: 14px;
-		color: #34a853;
-		margin-top: 12px;
+		font-weight: 500;
+		color: $lb-text;
 	}
 </style>

@@ -1,0 +1,72 @@
+<template>
+	<view class="tag-picker">
+		<view
+			v-for="(item, index) in options"
+			:key="index"
+			class="tag-item"
+			:class="value == item ? 'tag-item-on' : ''"
+			:style="tagStyle(item)"
+			@click="pick(item)"
+		>
+			<text class="tag-text" :style="tagTextStyle(item)">{{ item }}</text>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const props = defineProps({
+		options: { type: Array, default: (): string[] => { return [] as string[] } },
+		value: { type: String, default: '' },
+		themeColor: { type: String, default: '#e85d5d' },
+		themeSoft: { type: String, default: '#fde8e8' }
+	})
+
+	const emit = defineEmits(['update:value', 'change'])
+
+	function pick(item: string) {
+		emit('update:value', item)
+		emit('change', item)
+	}
+
+	function tagStyle(item: string): UTSJSONObject {
+		if (props.value == item) {
+			return {
+				backgroundColor: props.themeSoft,
+				borderColor: props.themeColor
+			} as UTSJSONObject
+		}
+		return {} as UTSJSONObject
+	}
+
+	function tagTextStyle(item: string): UTSJSONObject {
+		if (props.value == item) {
+			return { color: props.themeColor, fontWeight: '500' } as UTSJSONObject
+		}
+		return { color: '#666666' } as UTSJSONObject
+	}
+</script>
+
+<style lang="scss">
+	.tag-picker {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.tag-item {
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 14px;
+		padding-right: 14px;
+		margin-right: 8px;
+		margin-bottom: 8px;
+		border-radius: 16px;
+		background-color: $lb-bg;
+		border-width: 1px;
+		border-color: $lb-line;
+		border-style: solid;
+	}
+
+	.tag-text {
+		font-size: 13px;
+	}
+</style>

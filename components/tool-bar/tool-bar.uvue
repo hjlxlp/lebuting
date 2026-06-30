@@ -1,0 +1,32 @@
+<template>
+	<view class="tool-bar" :class="alignEnd ? 'tool-bar-end' : ''">
+		<slot></slot>
+	</view>
+</template>
+
+<script setup lang="uts">
+	defineProps({
+		alignEnd: { type: Boolean, default: false }
+	})
+</script>
+
+<style lang="scss">
+	.tool-bar {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-left: 16px;
+		padding-right: 16px;
+		background-color: $lb-card;
+		border-bottom-width: 1px;
+		border-bottom-color: $lb-line;
+		border-bottom-style: solid;
+		flex-shrink: 0;
+	}
+
+	.tool-bar-end {
+		justify-content: flex-end;
+	}
+</style>

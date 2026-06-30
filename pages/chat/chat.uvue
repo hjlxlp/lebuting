@@ -1,50 +1,46 @@
 <template>
-	<view class="page">
+	<view class="page-shell">
+		<topbar title="Agent" backUrl="/pages/index/index"></topbar>
+
 		<view class="status-bar">
-			<view class="status-dot" :class="connected ? 'online' : 'offline'"></view>
+			<view class="status-dot" :class="connected ? 'status-dot-live' : ''"></view>
 			<text class="status-text">{{ statusText }}</text>
-			<text class="retry-btn" @click="testConnection">重试</text>
+			<text class="status-retry" @click="testConnection">重试</text>
 		</view>
 
 		<scroll-view class="message-list" scroll-y="true" :scroll-into-view="scrollIntoView">
-			<view v-if="displayMessages.length == 0" class="empty-tip">
-				<text class="empty-text">连接渣渣乐agent后即可开始对话</text>
+			<view v-if="displayMessages.length == 0" class="chat-empty">
+				<text class="chat-empty-text">需要什么帮助？</text>
 			</view>
 			<view
 				v-for="(item, index) in displayMessages"
 				:key="index"
 				:id="'msg-' + index"
 				class="message-row"
-				:class="item.role == 'user' ? 'row-user' : 'row-assistant'"
+				:class="item.role == 'user' ? 'message-row-me' : 'message-row-ai'"
 			>
-				<view class="bubble" :class="item.role == 'user' ? 'bubble-user' : 'bubble-assistant'">
-					<text class="bubble-text" :class="item.role == 'user' ? 'text-user' : 'text-assistant'">{{ item.content }}</text>
+				<view class="bubble" :class="item.role == 'user' ? 'bubble-me' : 'bubble-ai'">
+					<text class="bubble-text" :class="item.role == 'user' ? 'bubble-text-me' : ''">{{ item.content }}</text>
 				</view>
 			</view>
-			<view v-if="loading" class="message-row row-assistant">
-				<view class="bubble bubble-assistant">
-					<text class="bubble-text loading-text">思考中...</text>
+			<view v-if="loading" class="message-row message-row-ai">
+				<view class="bubble bubble-ai">
+					<text class="bubble-text bubble-text-muted">思考中...</text>
 				</view>
 			</view>
 			<view id="msg-bottom" style="height: 1px;"></view>
 		</scroll-view>
 
-		<view class="input-bar">
+		<view class="compose">
 			<input
-				class="input"
+				class="compose-input"
 				v-model="inputText"
 				placeholder="输入消息..."
 				:disabled="loading || !connected"
 				confirm-type="send"
 				@confirm="sendMessage"
 			/>
-			<button
-				class="send-btn"
-				type="primary"
-				size="mini"
-				:disabled="loading || !connected || inputText.trim().length == 0"
-				@click="sendMessage"
-			>发送</button>
+			<button class="compose-btn" :disabled="loading || !connected || inputText.trim().length == 0" @click="sendMessage">发送</button>
 		</view>
 	</view>
 </template>
@@ -60,7 +56,7 @@
 	const inputText = ref('')
 	const loading = ref(false)
 	const connected = ref(false)
-	const statusText = ref('正在连接渣渣乐agent...')
+	const statusText = ref('正在连接...')
 	const scrollIntoView = ref('msg-bottom')
 	const displayMessages = ref<DisplayMessage[]>([])
 	const chatHistory = ref<ChatMessage[]>([])
@@ -80,23 +76,15 @@
 	}
 
 	function createDisplayMessage(role: string, content: string): DisplayMessage {
-		const msg: DisplayMessage = {
-			role: role,
-			content: content
-		}
-		return msg
+		return { role: role, content: content }
 	}
 
 	function createChatMessage(role: string, content: string): ChatMessage {
-		const msg: ChatMessage = {
-			role: role,
-			content: content
-		}
-		return msg
+		return { role: role, content: content }
 	}
 
 	function testConnection() {
-		statusText.value = '正在连接渣渣乐agent...'
+		statusText.value = '正在连接...'
 		connected.value = false
 		checkHealth().then((info: string) => {
 			connected.value = true
@@ -112,13 +100,11 @@
 		if (text.length == 0 || loading.value || !connected.value) {
 			return
 		}
-
 		displayMessages.value.push(createDisplayMessage('user', text))
 		chatHistory.value.push(createChatMessage('user', text))
 		inputText.value = ''
 		loading.value = true
 		scrollToBottom()
-
 		sendChat(chatHistory.value).then((reply: string) => {
 			displayMessages.value.push(createDisplayMessage('assistant', reply))
 			chatHistory.value.push(createChatMessage('assistant', reply))
@@ -135,64 +121,58 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		flex-direction: column;
-		background-color: #f5f5f5;
-	}
-
+<style lang="scss">
 	.status-bar {
 		flex-direction: row;
 		align-items: center;
-		padding: 10px 16px;
-		background-color: #ffffff;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		padding-left: 16px;
+		padding-right: 16px;
+		background-color: $lb-card;
 		border-bottom-width: 1px;
-		border-bottom-color: #e5e5e5;
+		border-bottom-color: $lb-line;
 		border-bottom-style: solid;
 	}
 
 	.status-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 4px;
-		margin-right: 8px;
+		width: 6px;
+		height: 6px;
+		border-radius: 3px;
+		background-color: #cccccc;
+		margin-right: 6px;
 	}
 
-	.online {
-		background-color: #4cd964;
-	}
-
-	.offline {
-		background-color: #dd524d;
+	.status-dot-live {
+		background-color: $lb-action;
 	}
 
 	.status-text {
 		flex: 1;
-		font-size: 13px;
-		color: #666666;
+		font-size: 12px;
+		color: $lb-text-3;
 	}
 
-	.retry-btn {
-		font-size: 13px;
-		color: #007aff;
-		padding: 4px 8px;
+	.status-retry {
+		font-size: 12px;
+		color: $lb-chat;
+		padding-left: 8px;
+		padding-right: 8px;
 	}
 
 	.message-list {
 		flex: 1;
-		padding: 12px 16px;
+		padding: 16px;
 	}
 
-	.empty-tip {
+	.chat-empty {
 		align-items: center;
-		padding: 60px 20px;
+		padding-top: 40px;
 	}
 
-	.empty-text {
+	.chat-empty-text {
 		font-size: 14px;
-		color: #999999;
-		text-align: center;
+		color: $lb-text-3;
 	}
 
 	.message-row {
@@ -200,69 +180,83 @@
 		margin-bottom: 12px;
 	}
 
-	.row-user {
+	.message-row-me {
 		justify-content: flex-end;
 	}
 
-	.row-assistant {
+	.message-row-ai {
 		justify-content: flex-start;
 	}
 
 	.bubble {
 		max-width: 280px;
-		padding: 10px 14px;
-		border-radius: 12px;
+		padding-top: 12px;
+		padding-bottom: 12px;
+		padding-left: 14px;
+		padding-right: 14px;
+		border-radius: 16px;
 	}
 
-	.bubble-user {
-		background-color: #007aff;
+	.bubble-ai {
+		background-color: $lb-card;
+		border-bottom-left-radius: 4px;
 	}
 
-	.bubble-assistant {
-		background-color: #ffffff;
-		border-width: 1px;
-		border-color: #e5e5e5;
-		border-style: solid;
+	.bubble-me {
+		background-color: $lb-eat;
+		border-bottom-right-radius: 4px;
 	}
 
 	.bubble-text {
 		font-size: 15px;
 		line-height: 22px;
+		color: $lb-text;
 	}
 
-	.text-user {
+	.bubble-text-me {
 		color: #ffffff;
 	}
 
-	.text-assistant {
-		color: #333333;
+	.bubble-text-muted {
+		color: $lb-text-3;
 	}
 
-	.loading-text {
-		color: #999999;
-	}
-
-	.input-bar {
+	.compose {
 		flex-direction: row;
 		align-items: center;
-		padding: 10px 12px;
-		background-color: #ffffff;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-left: 12px;
+		padding-right: 12px;
+		background-color: $lb-card;
 		border-top-width: 1px;
-		border-top-color: #e5e5e5;
+		border-top-color: $lb-line;
 		border-top-style: solid;
 	}
 
-	.input {
+	.compose-input {
 		flex: 1;
 		height: 40px;
-		padding: 0 12px;
+		padding-left: 16px;
+		padding-right: 16px;
 		font-size: 15px;
-		background-color: #f5f5f5;
+		background-color: $lb-bg;
 		border-radius: 20px;
-		margin-right: 10px;
+		border-width: 1px;
+		border-color: $lb-line;
+		border-style: solid;
+		margin-right: 8px;
 	}
 
-	.send-btn {
-		width: 64px;
+	.compose-btn {
+		height: 40px;
+		padding-left: 18px;
+		padding-right: 18px;
+		border-radius: 20px;
+		background-color: $lb-eat;
+		color: #ffffff;
+		font-size: 14px;
+		font-weight: 500;
+		border-width: 0px;
 	}
 </style>

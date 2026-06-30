@@ -1,38 +1,47 @@
 <template>
-	<view class="page">
-		<view class="form">
-			<view class="field">
-				<text class="label">分类名称</text>
-				<input class="input" v-model="name" placeholder="如：火锅" />
+	<view class="page-shell">
+		<form-card>
+			<view class="field field-last">
+				<text class="field-label">分类名称</text>
+				<input class="field-input" v-model="name" placeholder="如：火锅" />
 			</view>
-		</view>
-
-		<button class="save-btn" type="primary" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
+		</form-card>
+		<button class="save-btn" :style="saveBtnStyle" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
 	</view>
 </template>
 
 <script setup lang="uts">
-	import { createEatDishType, updateEatDishType, listEatDishTypes } from '../../utils/eat-dish.uts'
+	import { EAT_DISH_CONFIG } from '../../utils/module-config.uts'
+	import { listEatDishTypes, createEatDishType, updateEatDishType } from '../../utils/eat-dish.uts'
 
+	const config = EAT_DISH_CONFIG
 	const typeId = ref(0)
 	const name = ref('')
 	const saving = ref(false)
+
+	const saveBtnStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: config.themeColor } as UTSJSONObject
+	})
+
+	function getEatDishTypeFromList(id: number) {
+		listEatDishTypes().then((list) => {
+			for (let i = 0; i < list.length; i++) {
+				if (list[i].id == id) {
+					name.value = list[i].name
+					break
+				}
+			}
+		}).catch((err) => {
+			uni.showToast({ title: '' + err, icon: 'none' })
+		})
+	}
 
 	onLoad((options) => {
 		const idStr = options['id']
 		if (idStr != null && ('' + idStr).length > 0) {
 			typeId.value = parseInt('' + idStr)
 			uni.setNavigationBarTitle({ title: '编辑分类' })
-			listEatDishTypes().then((list) => {
-				for (let i = 0; i < list.length; i++) {
-					if (list[i].id == typeId.value) {
-						name.value = list[i].name
-						break
-					}
-				}
-			}).catch((err) => {
-				uni.showToast({ title: '' + err, icon: 'none' })
-			})
+			getEatDishTypeFromList(typeId.value)
 		} else {
 			uni.setNavigationBarTitle({ title: '新增分类' })
 		}
@@ -44,7 +53,7 @@
 		}
 		const n = name.value.trim()
 		if (n.length == 0) {
-			uni.showToast({ title: '请填写名称', icon: 'none' })
+			uni.showToast({ title: '请填写分类名称', icon: 'none' })
 			return
 		}
 		saving.value = true
@@ -53,7 +62,7 @@
 				saving.value = false
 				uni.showToast({ title: '已保存', icon: 'success' })
 				setTimeout(() => {
-					uni.navigateBack()
+					uni.navigateBack({})
 				}, 400)
 			}).catch((err) => {
 				saving.value = false
@@ -64,7 +73,7 @@
 				saving.value = false
 				uni.showToast({ title: '已添加', icon: 'success' })
 				setTimeout(() => {
-					uni.navigateBack()
+					uni.navigateBack({})
 				}, 400)
 			}).catch((err) => {
 				saving.value = false
@@ -74,40 +83,34 @@
 	}
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		background-color: #f5f5f5;
-		padding: 16px;
-	}
-
-	.form {
-		background-color: #ffffff;
-		border-radius: 12px;
-		padding: 16px;
-		margin-bottom: 20px;
-	}
-
+<style lang="scss">
 	.field {
-		margin-bottom: 18px;
+		padding-top: 14px;
+		padding-bottom: 14px;
 	}
 
-	.label {
-		font-size: 14px;
-		color: #666666;
+	.field-label {
+		font-size: 13px;
+		color: $lb-text-3;
 		margin-bottom: 8px;
 	}
 
-	.input {
+	.field-input {
 		height: 44px;
-		padding: 0 12px;
-		font-size: 15px;
-		background-color: #f5f5f5;
-		border-radius: 8px;
+		font-size: 16px;
+		color: $lb-text;
 	}
 
 	.save-btn {
-		background-color: #ff6b35;
-		border-radius: 24px;
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-top: 20px;
+		padding-top: 14px;
+		padding-bottom: 14px;
+		border-radius: $lb-radius;
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: 500;
+		border-width: 0px;
 	}
 </style>

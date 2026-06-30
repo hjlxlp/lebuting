@@ -3,13 +3,15 @@
 		{
 			"path": "pages/index/index",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "乐不停"
 			}
 		},
 		{
 			"path": "pages/chat/chat",
 			"style": {
-				"navigationBarTitleText": "渣渣乐agent"
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "Agent"
 			}
 		}
 	],
@@ -20,14 +22,14 @@
 				{
 					"path": "wheel",
 					"style": {
-						"navigationBarTitleText": "吃什么菜",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "foods",
 					"style": {
-						"navigationBarTitleText": "吃饭候选",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
@@ -52,21 +54,21 @@
 				{
 					"path": "excluded",
 					"style": {
-						"navigationBarTitleText": "今天不吃",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "records",
 					"style": {
-						"navigationBarTitleText": "吃过记录",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "stats",
 					"style": {
-						"navigationBarTitleText": "吃饭统计",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				}
@@ -78,14 +80,14 @@
 				{
 					"path": "wheel",
 					"style": {
-						"navigationBarTitleText": "做什么菜",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "foods",
 					"style": {
-						"navigationBarTitleText": "做菜候选",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
@@ -110,21 +112,21 @@
 				{
 					"path": "excluded",
 					"style": {
-						"navigationBarTitleText": "今天不做",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "records",
 					"style": {
-						"navigationBarTitleText": "做过记录",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				},
 				{
 					"path": "stats",
 					"style": {
-						"navigationBarTitleText": "做菜统计",
+						"navigationStyle": "custom",
 						"enablePullDownRefresh": true
 					}
 				}
@@ -134,8 +136,8 @@
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "乐不停",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f5f5f7"
 	},
 	"easycom": {
 		"autoscan": true

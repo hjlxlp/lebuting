@@ -1,0 +1,58 @@
+<template>
+	<view class="stat-card" :class="plain ? 'stat-card-plain' : ''" :style="cardStyle">
+		<text class="stat-label">{{ label }}</text>
+		<text class="stat-num">{{ value }}</text>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { getModuleConfig } from '../../utils/module-config.uts'
+
+	const props = defineProps({
+		module: { type: String, default: 'eat-dish' },
+		label: { type: String, default: '' },
+		value: { type: String, default: '' },
+		plain: { type: Boolean, default: false }
+	})
+
+	const cardStyle = computed((): UTSJSONObject => {
+		if (props.plain) {
+			return { backgroundColor: '#ffffff' } as UTSJSONObject
+		}
+		const color = getModuleConfig(props.module).themeColor
+		return { backgroundColor: color } as UTSJSONObject
+	})
+</script>
+
+<style lang="scss">
+	.stat-card {
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-top: 12px;
+		padding-top: 22px;
+		padding-bottom: 22px;
+		padding-left: 18px;
+		padding-right: 18px;
+		border-radius: $lb-radius;
+	}
+
+	.stat-card-plain .stat-label {
+		color: $lb-text-2;
+	}
+
+	.stat-card-plain .stat-num {
+		color: $lb-text;
+	}
+
+	.stat-label {
+		font-size: 14px;
+		color: rgba(255, 255, 255, 0.85);
+		margin-bottom: 6px;
+	}
+
+	.stat-num {
+		font-size: 26px;
+		font-weight: 700;
+		color: #ffffff;
+	}
+</style>

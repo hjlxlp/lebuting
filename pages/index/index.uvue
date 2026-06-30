@@ -1,137 +1,53 @@
 <template>
-	<view class="page">
-		<view class="header">
-			<text class="app-name">乐不停</text>
-			<text class="app-desc">选一个模块开始</text>
-		</view>
-
-		<view class="module-list">
-			<view class="module-card eat-dish-card" @click="goEatDish">
-				<text class="module-icon">🍽️</text>
-				<view class="module-info">
-					<text class="module-title">吃什么菜</text>
-					<text class="module-sub">外出就餐转盘，记录吃过次数</text>
-				</view>
-				<text class="module-arrow">›</text>
+	<view class="page-shell">
+		<scroll-view class="page-scroll" scroll-y="true" :style="pageStyle">
+			<view class="mod-list">
+				<mod-card iconType="chat" title="Agent" desc="与渣渣乐对话" @click="goChat"></mod-card>
+				<mod-card iconType="eat" title="吃什么" desc="外出就餐，转盘决策" @click="goEat"></mod-card>
+				<mod-card iconType="cook" title="做什么" desc="在家下厨，转盘决策" @click="goCook"></mod-card>
+				<mod-card iconType="bill" title="记账" desc="支出概览与图表" tag="敬请期待" :disabled="true" @click="onBill"></mod-card>
 			</view>
-
-			<view class="module-card cook-dish-card" @click="goCookDish">
-				<text class="module-icon">👨‍🍳</text>
-				<view class="module-info">
-					<text class="module-title">做什么菜</text>
-					<text class="module-sub">在家下厨转盘，记录做过次数</text>
-				</view>
-				<text class="module-arrow">›</text>
-			</view>
-
-			<view class="module-card chat-card" @click="goChat">
-				<text class="module-icon">💬</text>
-				<view class="module-info">
-					<text class="module-title">渣渣乐agent</text>
-					<text class="module-sub">和渣渣乐agent聊天</text>
-				</view>
-				<text class="module-arrow">›</text>
-			</view>
-		</view>
+		</scroll-view>
 	</view>
 </template>
 
 <script setup lang="uts">
-	function goEatDish() {
-		uni.navigateTo({ url: '/pages/eat-dish/wheel' })
-	}
+	const statusBarHeight = ref(0)
 
-	function goCookDish() {
-		uni.navigateTo({ url: '/pages/cook-dish/wheel' })
-	}
+	const pageStyle = computed((): UTSJSONObject => {
+		return {
+			paddingTop: (statusBarHeight.value + 30) + 'px'
+		} as UTSJSONObject
+	})
+
+	onMounted(() => {
+		const info = uni.getSystemInfoSync()
+		statusBarHeight.value = info.statusBarHeight
+	})
 
 	function goChat() {
 		uni.navigateTo({ url: '/pages/chat/chat' })
 	}
+
+	function goEat() {
+		uni.navigateTo({ url: '/pages/eat-dish/wheel' })
+	}
+
+	function goCook() {
+		uni.navigateTo({ url: '/pages/cook-dish/wheel' })
+	}
+
+	function onBill() {
+		uni.showToast({ title: '敬请期待', icon: 'none' })
+	}
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		background-color: #f5f5f5;
-		padding: 24px 16px;
-	}
+<style lang="scss">
+	@import '@/styles/layout.scss';
 
-	.header {
-		margin-bottom: 28px;
-		padding-top: 20px;
-	}
-
-	.app-name {
-		font-size: 28px;
-		font-weight: bold;
-		color: #333333;
-		margin-bottom: 6px;
-	}
-
-	.app-desc {
-		font-size: 14px;
-		color: #999999;
-	}
-
-	.module-list {
-		flex-direction: column;
-	}
-
-	.module-card {
-		flex-direction: row;
-		align-items: center;
-		background-color: #ffffff;
-		border-radius: 14px;
-		padding: 18px 16px;
-		margin-bottom: 12px;
-		border-width: 1px;
-		border-color: #eeeeee;
-		border-style: solid;
-	}
-
-	.eat-dish-card {
-		border-left-width: 4px;
-		border-left-color: #ff6b35;
-		border-left-style: solid;
-	}
-
-	.cook-dish-card {
-		border-left-width: 4px;
-		border-left-color: #34a853;
-		border-left-style: solid;
-	}
-
-	.chat-card {
-		border-left-width: 4px;
-		border-left-color: #007aff;
-		border-left-style: solid;
-	}
-
-	.module-icon {
-		font-size: 32px;
-		margin-right: 14px;
-	}
-
-	.module-info {
+	.page-shell {
 		flex: 1;
 		flex-direction: column;
-	}
-
-	.module-title {
-		font-size: 17px;
-		font-weight: bold;
-		color: #333333;
-		margin-bottom: 4px;
-	}
-
-	.module-sub {
-		font-size: 13px;
-		color: #999999;
-	}
-
-	.module-arrow {
-		font-size: 24px;
-		color: #cccccc;
+		background-color: $lb-bg;
 	}
 </style>

@@ -1,0 +1,30 @@
+/* 页面通用布局 */
+
+.page-shell {
+	flex: 1;
+	flex-direction: column;
+	background-color: $lb-bg;
+}
+
+.page-scroll {
+	flex: 1;
+}
+
+.page-scroll-tab {
+	flex: 1;
+	padding-bottom: 76px;
+}
+
+.page-scroll-list-top {
+	flex: 1;
+	padding-bottom: 76px;
+	padding-top: 12px;
+}
+
+.mod-list {
+	padding-left: 16px;
+	padding-right: 16px;
+	padding-top: 30px;
+	padding-bottom: 24px;
+	flex-direction: column;
+}

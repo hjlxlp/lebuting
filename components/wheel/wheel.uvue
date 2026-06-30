@@ -1,0 +1,93 @@
+<template>
+	<view class="wheel-wrap">
+		<view class="wheel-outer" :style="outerStyle">
+			<view class="wheel-stage">
+				<view class="wheel-needle" :style="needleStyle"></view>
+				<view class="wheel-dot" :style="dotStyle"></view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { getModuleConfig } from '../../utils/module-config.uts'
+
+	const props = defineProps({
+		module: { type: String, default: 'eat-dish' },
+		rotate: { type: Number, default: 0 }
+	})
+
+	const themeColor = getModuleConfig(props.module).themeColor
+
+	const outerStyle = computed((): UTSJSONObject => {
+		return {
+			borderColor: themeColor,
+			backgroundColor: props.module == 'cook-dish' ? '#f0faf3' : '#fff5f5'
+		} as UTSJSONObject
+	})
+
+	const needleStyle = computed((): UTSJSONObject => {
+		return {
+			backgroundColor: themeColor,
+			transform: 'rotate(' + props.rotate + 'deg)'
+		} as UTSJSONObject
+	})
+
+	const dotStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: themeColor } as UTSJSONObject
+	})
+</script>
+
+<style lang="scss">
+	.wheel-wrap {
+		align-items: center;
+		padding-top: 28px;
+		padding-bottom: 16px;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.wheel-outer {
+		width: 168px;
+		height: 168px;
+		border-radius: 84px;
+		border-width: 5px;
+		border-style: solid;
+		position: relative;
+	}
+
+	.wheel-stage {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 168px;
+		height: 168px;
+	}
+
+	.wheel-needle {
+		position: absolute;
+		width: 3px;
+		height: 52px;
+		left: 82px;
+		top: 32px;
+		border-radius: 2px;
+		transform-origin: 1.5px 52px;
+		transition-property: transform;
+		transition-duration: 2000ms;
+		transition-timing-function: ease-out;
+		z-index: 1;
+	}
+
+	.wheel-dot {
+		position: absolute;
+		width: 14px;
+		height: 14px;
+		left: 77px;
+		top: 77px;
+		border-radius: 7px;
+		border-width: 3px;
+		border-color: #ffffff;
+		border-style: solid;
+		z-index: 2;
+	}
+</style>

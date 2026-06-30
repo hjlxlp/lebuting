@@ -1,42 +1,42 @@
 <template>
-	<view class="page">
-		<view class="toolbar">
-			<button class="add-btn" type="primary" size="mini" @click="goAdd">+ 新增分类</button>
-		</view>
-
-		<scroll-view class="list" scroll-y="true">
-			<view v-if="loading" class="empty">
-				<text class="empty-text">加载中...</text>
-			</view>
-			<view v-else-if="loadError.length > 0" class="empty">
-				<text class="empty-text error-text">{{ loadError }}</text>
-				<text class="retry-link" @click="loadList">点击重试</text>
-			</view>
-			<view v-else-if="items.length == 0" class="empty">
-				<text class="empty-text">还没有分类</text>
-			</view>
-			<view v-for="(item, index) in items" :key="index" class="row">
-				<text class="row-name" @click="goEdit(item.id)">{{ item.name }}</text>
-				<view class="row-actions">
-					<text class="action-link" @click="goEdit(item.id)">编辑</text>
-					<text class="action-link danger" @click="confirmDelete(item.id, item.name)">删除</text>
-				</view>
-			</view>
+	<view class="page-shell">
+		<tool-bar :alignEnd="true">
+			<text class="add-btn" :style="addBtnStyle" @click="goAdd">+ 新增分类</text>
+		</tool-bar>
+		<scroll-view class="page-scroll-list-top" scroll-y="true">
+			<empty-state v-if="loading" text="加载中..."></empty-state>
+			<empty-state v-else-if="loadError.length > 0" :text="loadError" :error="true" :retry="true" themeColor="#e85d5d" @retry="loadList"></empty-state>
+			<empty-state v-else-if="items.length == 0" text="还没有分类"></empty-state>
+			<list-row
+				v-for="(item, index) in items"
+				:key="index"
+				:title="item.name"
+				:tappable="true"
+				:hasOps="true"
+				@click="goEdit(item.id)"
+			>
+				<template v-slot:ops>
+					<text class="link-danger" @click.stop="confirmDelete(item.id, item.name)">删除</text>
+				</template>
+			</list-row>
 		</scroll-view>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { EAT_DISH_CONFIG } from '../../utils/module-config.uts'
 	import { listEatDishTypes, deleteEatDishType, type EatDishType } from '../../utils/eat-dish.uts'
 
-	type TypeRow = {
-		id: number
-		name: string
-	}
+	type TypeRow = { id: number; name: string }
 
+	const config = EAT_DISH_CONFIG
 	const items = ref<TypeRow[]>([])
 	const loading = ref(false)
 	const loadError = ref('')
+
+	const addBtnStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: config.themeColor } as UTSJSONObject
+	})
 
 	function loadList() {
 		loading.value = true
@@ -85,75 +85,22 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		background-color: #f5f5f5;
-	}
-
-	.toolbar {
-		flex-direction: row;
-		justify-content: flex-end;
-		padding: 10px 16px;
-		background-color: #ffffff;
-	}
-
+<style lang="scss">
 	.add-btn {
-		background-color: #ff6b35;
-	}
-
-	.list {
-		flex: 1;
-		padding: 8px 16px;
-	}
-
-	.row {
-		flex-direction: row;
-		align-items: center;
-		background-color: #ffffff;
-		border-radius: 10px;
-		padding: 14px 12px;
-		margin-bottom: 8px;
-	}
-
-	.row-name {
-		flex: 1;
-		font-size: 16px;
-		color: #333333;
-	}
-
-	.row-actions {
-		flex-direction: row;
-	}
-
-	.action-link {
 		font-size: 13px;
-		color: #ff6b35;
-		padding: 6px 8px;
+		font-weight: 500;
+		color: #ffffff;
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 14px;
+		padding-right: 14px;
+		border-radius: 16px;
 	}
 
-	.danger {
-		color: #e53935;
-	}
-
-	.empty {
-		padding: 60px 20px;
-		align-items: center;
-	}
-
-	.empty-text {
-		font-size: 14px;
-		color: #999999;
-	}
-
-	.error-text {
-		color: #e53935;
-		text-align: center;
-	}
-
-	.retry-link {
-		font-size: 14px;
-		color: #ff6b35;
-		margin-top: 12px;
+	.link-danger {
+		font-size: 13px;
+		color: $lb-eat;
+		padding-left: 6px;
+		padding-right: 6px;
 	}
 </style>

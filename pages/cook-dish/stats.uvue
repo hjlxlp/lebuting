@@ -1,53 +1,62 @@
 <template>
-	<view class="page">
-		<view v-if="loading" class="summary-card summary-loading">
-			<text class="summary-title">加载中...</text>
-		</view>
-		<view v-else-if="loadError.length > 0" class="summary-card summary-error">
-			<text class="summary-title error-text">{{ loadError }}</text>
-			<text class="retry-link" @click="loadStats">点击重试</text>
-		</view>
-		<view v-else class="summary-card">
-			<text class="summary-title">{{ month }} 统计</text>
-			<text class="summary-count">共做了 {{ totalCount }} 次</text>
-		</view>
+	<view class="page-shell">
+		<topbar :title="config.statsTitle"></topbar>
+		<scroll-view class="page-scroll-tab" scroll-y="true">
+			<stat-card v-if="loading" module="cook-dish" :label="month" value="加载中..." :plain="true"></stat-card>
+			<view v-else-if="loadError.length > 0" class="stat-error">
+				<empty-state :text="loadError" :error="true" :retry="true" themeColor="#3d9b5c" @retry="loadStats"></empty-state>
+			</view>
+			<stat-card v-else module="cook-dish" :label="month" :value="totalCount + ' 次'"></stat-card>
 
-		<scroll-view class="list" scroll-y="true">
-			<text class="section-title">本月榜单</text>
-			<view v-if="!loading && loadError.length == 0 && ranking.length == 0" class="empty">
-				<text class="empty-text">本月还没有记录</text>
-			</view>
-			<view v-for="(item, index) in ranking" :key="index" class="row">
-				<text class="rank" :class="index < 3 ? 'rank-top' : ''">{{ index + 1 }}</text>
-				<view class="row-info">
-					<text class="row-label">{{ item.label }}</text>
-					<text class="row-sub">总计 {{ item.total }} 次 · 最近 {{ item.lastShort }}</text>
-				</view>
-				<text class="row-count">{{ item.month_count }} 次</text>
-			</view>
+			<section-title text="本月榜单"></section-title>
+			<empty-state v-if="!loading && loadError.length == 0 && ranking.length == 0" text="本月还没有记录"></empty-state>
+			<list-row
+				v-for="(item, index) in ranking"
+				:key="index"
+				:rank="'' + (index + 1)"
+				:rankColor="index < 3 ? config.themeColor : '#cccccc'"
+				:title="item.label"
+				:subtitle="buildSubtitle(item)"
+				:hasRight="true"
+			>
+				<template v-slot:right>
+					<text class="row-amt" :style="countStyle">{{ item.month_count }}</text>
+				</template>
+			</list-row>
 		</scroll-view>
-
-		<cook-dish-tab-bar current="stats"></cook-dish-tab-bar>
+		<tab-bar module="cook-dish" current="stats"></tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { COOK_DISH_CONFIG } from '../../utils/module-config.uts'
 	import { getCookDishStatsSummary, formatCookDishShortDate } from '../../utils/cook-dish.uts'
 
 	type RankRow = {
-		food_id: number
 		label: string
 		total: number
 		month_count: number
-		last_cooked_at: string
 		lastShort: string
 	}
 
+	const config = COOK_DISH_CONFIG
 	const month = ref('')
 	const totalCount = ref(0)
 	const ranking = ref<RankRow[]>([])
 	const loading = ref(false)
 	const loadError = ref('')
+
+	const countStyle = computed((): UTSJSONObject => {
+		return { color: config.themeColor } as UTSJSONObject
+	})
+
+	function buildSubtitle(item: RankRow): string {
+		let text = '总计 ' + item.total + ' 次'
+		if (item.lastShort.length > 0) {
+			text = text + ' · 最近 ' + item.lastShort
+		}
+		return text
+	}
 
 	function loadStats(): Promise<void> {
 		loading.value = true
@@ -59,11 +68,9 @@
 			for (let i = 0; i < summary.ranking.length; i++) {
 				const s = summary.ranking[i]
 				rows.push({
-					food_id: s.food_id,
 					label: s.label,
 					total: s.total,
 					month_count: s.month_count,
-					last_cooked_at: s.last_cooked_at,
 					lastShort: formatCookDishShortDate(s.last_cooked_at)
 				})
 			}
@@ -87,120 +94,15 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		flex-direction: column;
-		background-color: #f5f5f5;
+<style lang="scss">
+	.stat-error {
+		margin-top: 12px;
 	}
 
-	.summary-card {
-		margin: 12px 16px;
-		padding: 20px;
-		background-color: #34a853;
-		border-radius: 14px;
-	}
-
-	.summary-loading {
-		background-color: #ffffff;
-	}
-
-	.summary-error {
-		background-color: #ffffff;
-		align-items: center;
-	}
-
-	.summary-title {
-		font-size: 14px;
-		color: rgba(255, 255, 255, 0.85);
-		margin-bottom: 6px;
-	}
-
-	.summary-loading .summary-title,
-	.summary-error .summary-title {
-		color: #666666;
-	}
-
-	.summary-count {
-		font-size: 26px;
-		font-weight: bold;
-		color: #ffffff;
-	}
-
-	.list {
-		flex: 1;
-		padding: 0 16px 8px;
-	}
-
-	.section-title {
-		font-size: 15px;
-		font-weight: bold;
-		color: #333333;
-		margin-bottom: 10px;
-	}
-
-	.row {
-		flex-direction: row;
-		align-items: center;
-		background-color: #ffffff;
-		border-radius: 10px;
-		padding: 14px 12px;
-		margin-bottom: 8px;
-	}
-
-	.rank {
-		width: 28px;
-		font-size: 18px;
-		font-weight: bold;
-		color: #cccccc;
-		text-align: center;
-		margin-right: 8px;
-	}
-
-	.rank-top {
-		color: #34a853;
-	}
-
-	.row-info {
-		flex: 1;
-		flex-direction: column;
-	}
-
-	.row-label {
+	.row-amt {
 		font-size: 16px;
-		color: #333333;
-		margin-bottom: 4px;
-	}
-
-	.row-sub {
-		font-size: 12px;
-		color: #999999;
-	}
-
-	.row-count {
-		font-size: 16px;
-		font-weight: bold;
-		color: #34a853;
-	}
-
-	.empty {
-		padding: 40px 20px;
-		align-items: center;
-	}
-
-	.empty-text {
-		font-size: 14px;
-		color: #999999;
-	}
-
-	.error-text {
-		color: #e53935;
-		text-align: center;
-	}
-
-	.retry-link {
-		font-size: 14px;
-		color: #34a853;
-		margin-top: 8px;
+		font-weight: 600;
+		min-width: 24px;
+		text-align: right;
 	}
 </style>

@@ -1,0 +1,50 @@
+<template>
+	<view class="empty-state">
+		<text class="empty-text" :class="error ? 'empty-error' : ''">{{ text }}</text>
+		<text v-if="retry" class="empty-retry" :style="retryStyle" @click="onRetry">点击重试</text>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const props = defineProps({
+		text: { type: String, default: '' },
+		error: { type: Boolean, default: false },
+		retry: { type: Boolean, default: false },
+		themeColor: { type: String, default: '#e85d5d' }
+	})
+
+	const emit = defineEmits(['retry'])
+
+	const retryStyle = computed((): UTSJSONObject => {
+		return { color: props.themeColor } as UTSJSONObject
+	})
+
+	function onRetry() {
+		emit('retry')
+	}
+</script>
+
+<style lang="scss">
+	.empty-state {
+		padding-top: 60px;
+		padding-bottom: 60px;
+		padding-left: 20px;
+		padding-right: 20px;
+		align-items: center;
+	}
+
+	.empty-text {
+		font-size: 14px;
+		color: $lb-text-3;
+		text-align: center;
+	}
+
+	.empty-error {
+		color: $lb-eat;
+	}
+
+	.empty-retry {
+		font-size: 14px;
+		margin-top: 12px;
+	}
+</style>

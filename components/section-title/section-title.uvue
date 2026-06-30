@@ -1,0 +1,20 @@
+<template>
+	<text class="section-title">{{ text }}</text>
+</template>
+
+<script setup lang="uts">
+	defineProps({
+		text: { type: String, default: '' }
+	})
+</script>
+
+<style lang="scss">
+	.section-title {
+		font-size: 14px;
+		color: $lb-text-2;
+		padding-left: 16px;
+		padding-right: 16px;
+		padding-top: 16px;
+		padding-bottom: 8px;
+	}
+</style>

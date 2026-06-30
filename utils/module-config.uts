@@ -1,0 +1,80 @@
+export type DishModuleSlug = 'eat-dish' | 'cook-dish'
+
+export type TabKey = 'wheel' | 'foods' | 'excluded' | 'records' | 'stats'
+
+export type TabItem = {
+	key: TabKey
+	label: string
+	url: string
+}
+
+export type ModuleConfig = {
+	slug: DishModuleSlug
+	themeColor: string
+	themeSoft: string
+	wheelTitle: string
+	foodsTitle: string
+	excludedTitle: string
+	recordsTitle: string
+	statsTitle: string
+	excludeAction: string
+	excludeDone: string
+	recordAction: string
+	spinLabel: string
+	tabs: TabItem[]
+}
+
+const EAT_TABS: TabItem[] = [
+	{ key: 'wheel', label: '转盘', url: '/pages/eat-dish/wheel' },
+	{ key: 'foods', label: '候选', url: '/pages/eat-dish/foods' },
+	{ key: 'excluded', label: '不吃', url: '/pages/eat-dish/excluded' },
+	{ key: 'records', label: '记录', url: '/pages/eat-dish/records' },
+	{ key: 'stats', label: '统计', url: '/pages/eat-dish/stats' }
+]
+
+const COOK_TABS: TabItem[] = [
+	{ key: 'wheel', label: '转盘', url: '/pages/cook-dish/wheel' },
+	{ key: 'foods', label: '候选', url: '/pages/cook-dish/foods' },
+	{ key: 'excluded', label: '不做', url: '/pages/cook-dish/excluded' },
+	{ key: 'records', label: '记录', url: '/pages/cook-dish/records' },
+	{ key: 'stats', label: '统计', url: '/pages/cook-dish/stats' }
+]
+
+export const EAT_DISH_CONFIG: ModuleConfig = {
+	slug: 'eat-dish',
+	themeColor: '#e85d5d',
+	themeSoft: '#fde8e8',
+	wheelTitle: '吃什么',
+	foodsTitle: '吃饭候选',
+	excludedTitle: '今天不吃',
+	recordsTitle: '吃过记录',
+	statsTitle: '吃饭统计',
+	excludeAction: '不吃',
+	excludeDone: '已排除',
+	recordAction: '记一笔',
+	spinLabel: '转一转',
+	tabs: EAT_TABS
+}
+
+export const COOK_DISH_CONFIG: ModuleConfig = {
+	slug: 'cook-dish',
+	themeColor: '#3d9b5c',
+	themeSoft: '#e8f5eb',
+	wheelTitle: '做什么',
+	foodsTitle: '做菜候选',
+	excludedTitle: '今天不做',
+	recordsTitle: '做过记录',
+	statsTitle: '做菜统计',
+	excludeAction: '不做',
+	excludeDone: '已排除',
+	recordAction: '记一笔',
+	spinLabel: '转一转',
+	tabs: COOK_TABS
+}
+
+export function getModuleConfig(slug: string): ModuleConfig {
+	if (slug == 'cook-dish') {
+		return COOK_DISH_CONFIG
+	}
+	return EAT_DISH_CONFIG
+}

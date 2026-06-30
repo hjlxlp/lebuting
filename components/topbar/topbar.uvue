@@ -1,0 +1,115 @@
+<template>
+	<view class="topbar-wrap" :class="light ? 'topbar-wrap-light' : ''" :style="wrapStyle">
+		<view class="topbar" :class="light ? 'topbar-light' : ''">
+			<view v-if="showBack" class="back-btn" @click="onBack">
+				<text class="back-arrow">‹</text>
+				<text class="back-text">返回</text>
+			</view>
+			<view v-else class="back-placeholder"></view>
+			<text class="topbar-title">{{ title }}</text>
+			<view class="topbar-gap"></view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const props = defineProps({
+		title: { type: String, default: '' },
+		showBack: { type: Boolean, default: true },
+		backUrl: { type: String, default: '/pages/index/index' },
+		light: { type: Boolean, default: false }
+	})
+
+	const statusBarHeight = ref(0)
+
+	const wrapStyle = computed((): UTSJSONObject => {
+		return {
+			paddingTop: statusBarHeight.value + 'px'
+		} as UTSJSONObject
+	})
+
+	onMounted(() => {
+		const info = uni.getSystemInfoSync()
+		statusBarHeight.value = info.statusBarHeight
+	})
+
+	function onBack() {
+		const pages = getCurrentPages()
+		if (pages.length > 1) {
+			uni.navigateBack({})
+			return
+		}
+		if (props.backUrl.length > 0) {
+			uni.reLaunch({ url: props.backUrl })
+		}
+	}
+</script>
+
+<style lang="scss">
+	.topbar-wrap {
+		background-color: $lb-card;
+	}
+
+	.topbar-wrap-light {
+		background-color: $lb-bg;
+	}
+
+	.topbar {
+		height: 48px;
+		flex-direction: row;
+		align-items: center;
+		padding-left: 8px;
+		padding-right: 8px;
+		background-color: $lb-card;
+	}
+
+	.topbar-light {
+		background-color: $lb-bg;
+	}
+
+	.back-btn {
+		flex-direction: row;
+		align-items: center;
+		height: 36px;
+		padding-left: 10px;
+		padding-right: 12px;
+		margin-left: 6px;
+		border-radius: 18px;
+		background-color: $lb-bg;
+		border-width: 1px;
+		border-color: $lb-line;
+		border-style: solid;
+	}
+
+	.back-arrow {
+		font-size: 18px;
+		color: $lb-text-2;
+		margin-right: 2px;
+		line-height: 18px;
+	}
+
+	.back-text {
+		font-size: 13px;
+		font-weight: 500;
+		color: $lb-text-2;
+	}
+
+	.back-placeholder {
+		width: 88px;
+		height: 36px;
+	}
+
+	.topbar-title {
+		flex: 1;
+		text-align: center;
+		font-size: 17px;
+		font-weight: 600;
+		color: $lb-text;
+	}
+
+	.topbar-gap {
+		width: 88px;
+		height: 36px;
+		flex-shrink: 0;
+	}
+</style>

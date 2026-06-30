@@ -1,56 +1,29 @@
 <template>
-	<view class="page">
-		<scroll-view class="main-scroll" scroll-y="true">
-			<view class="top-bar">
-				<text class="pool-text" v-if="poolLoading">加载转盘池...</text>
-				<text class="pool-text error-text" v-else-if="poolError.length > 0" @click="loadPool">{{ poolError }} · 点击重试</text>
-				<text class="pool-text" v-else>转盘池 {{ poolSize }} 个</text>
-			</view>
+	<view class="page-shell">
+		<topbar :title="config.wheelTitle" :light="true"></topbar>
+		<scroll-view class="page-scroll-tab" scroll-y="true">
+			<wheel module="cook-dish" :rotate="wheelRotate"></wheel>
+			<button class="spin-btn" :disabled="spinning || poolSize < 2" :style="spinBtnStyle" @click="doSpin">{{ config.spinLabel }}</button>
+			<text v-if="poolSize < 2 && !poolLoading" class="spin-hint">至少 2 个可选项才能转</text>
 
-			<view class="wheel-area">
-				<view class="wheel-outer">
-					<view class="wheel-inner" :style="wheelStyle">
-						<text class="wheel-emoji">👨‍🍳</text>
-					</view>
-				</view>
-				<text v-if="spinning" class="hint-text">转盘中...</text>
-				<text v-else-if="poolSize < 2" class="hint-text warn">至少 2 个可选项才能转</text>
-			</view>
+			<result-panel module="cook-dish" :visible="resultFood != null" :name="resultLabel" :meta="'本月已做 ' + resultMonthCount + ' 次'">
+				<text class="chip chip-fill" :style="chipFillStyle" @click="doRecord">{{ config.recordAction }}</text>
+				<text class="chip chip-line" @click="doExclude">{{ config.excludeAction }}</text>
+				<text class="chip chip-line" @click="doSpin">再转</text>
+			</result-panel>
 
-			<button
-				class="spin-btn"
-				type="primary"
-				:disabled="spinning || poolSize < 2"
-				@click="doSpin"
-			>转一转</button>
-
-			<view v-if="resultFood != null" class="result-card">
-				<text class="result-title">就做这个</text>
-				<text class="result-name">{{ resultLabel }}</text>
-				<text class="result-meta">本月已做 {{ resultMonthCount }} 次</text>
-				<view class="result-actions">
-					<button class="action-btn primary-btn" size="mini" type="primary" :disabled="actionBusy" @click="doRecord">记一笔</button>
-					<button class="action-btn" size="mini" :disabled="actionBusy" @click="doExclude">今天不做</button>
-					<button class="action-btn" size="mini" :disabled="spinning" @click="doSpin">再转</button>
-				</view>
-			</view>
-
-			<view class="pool-preview">
-				<text class="section-title">当前候选</text>
-				<view v-if="poolList.length == 0" class="empty-row">
-					<text class="empty-text">没有可选项，去候选页添加或恢复</text>
-				</view>
-				<view v-for="(item, index) in poolList" :key="index" class="pool-item">
-					<text class="pool-label">{{ item.label }}</text>
-				</view>
-			</view>
+			<section-title text="当前候选"></section-title>
+			<empty-state v-if="poolLoading" text="加载中..."></empty-state>
+			<empty-state v-else-if="poolError.length > 0" :text="poolError" :error="true" :retry="true" themeColor="#3d9b5c" @retry="loadPool"></empty-state>
+			<empty-state v-else-if="poolList.length == 0" text="没有可选项，去候选页添加或恢复"></empty-state>
+			<list-row v-for="(item, index) in poolList" :key="index" :title="item.label" :flat="true"></list-row>
 		</scroll-view>
-
-		<cook-dish-tab-bar current="wheel"></cook-dish-tab-bar>
+		<tab-bar module="cook-dish" current="wheel"></tab-bar>
 	</view>
 </template>
 
 <script setup lang="uts">
+	import { COOK_DISH_CONFIG } from '../../utils/module-config.uts'
 	import {
 		getCookDishWheelPool,
 		spinCookDishWheel,
@@ -61,10 +34,9 @@
 		type CookDishFood
 	} from '../../utils/cook-dish.uts'
 
-	type PoolItem = {
-		label: string
-	}
+	type PoolItem = { label: string }
 
+	const config = COOK_DISH_CONFIG
 	const poolSize = ref(0)
 	const poolList = ref<PoolItem[]>([])
 	const poolLoading = ref(false)
@@ -76,10 +48,12 @@
 	const resultLabel = ref('')
 	const resultMonthCount = ref(0)
 
-	const wheelStyle = computed((): UTSJSONObject => {
-		return {
-			transform: 'rotate(' + wheelRotate.value + 'deg)'
-		} as UTSJSONObject
+	const spinBtnStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: config.themeColor } as UTSJSONObject
+	})
+
+	const chipFillStyle = computed((): UTSJSONObject => {
+		return { backgroundColor: config.themeColor } as UTSJSONObject
 	})
 
 	function loadPool(): Promise<void> {
@@ -114,9 +88,7 @@
 		}
 		spinning.value = true
 		resultFood.value = null
-		const start = wheelRotate.value
-		wheelRotate.value = start + 720 + Math.floor(Math.random() * 360)
-
+		wheelRotate.value = wheelRotate.value + 720 + Math.floor(Math.random() * 360)
 		spinCookDishWheel().then((res) => {
 			spinning.value = false
 			resultFood.value = res.food
@@ -171,156 +143,46 @@
 	})
 </script>
 
-<style>
-	.page {
-		flex: 1;
-		flex-direction: column;
-		background-color: #f5f5f5;
-	}
-
-	.main-scroll {
-		flex: 1;
-	}
-
-	.top-bar {
-		padding: 12px 16px;
-		background-color: #ffffff;
-	}
-
-	.pool-text {
-		font-size: 14px;
-		color: #666666;
-	}
-
-	.error-text {
-		color: #e53935;
-	}
-
-	.wheel-area {
-		align-items: center;
-		padding: 20px 0 10px;
-	}
-
-	.wheel-outer {
-		width: 160px;
-		height: 160px;
-		border-radius: 80px;
-		background-color: #e6f4ea;
-		align-items: center;
-		justify-content: center;
-		border-width: 6px;
-		border-color: #34a853;
-		border-style: solid;
-	}
-
-	.wheel-inner {
-		width: 124px;
-		height: 124px;
-		border-radius: 62px;
-		background-color: #ffffff;
-		align-items: center;
-		justify-content: center;
-		transition-property: transform;
-		transition-duration: 2s;
-		transition-timing-function: ease-out;
-	}
-
-	.wheel-emoji {
-		font-size: 44px;
-	}
-
-	.hint-text {
-		font-size: 13px;
-		color: #999999;
-		margin-top: 10px;
-	}
-
-	.warn {
-		color: #34a853;
-	}
-
+<style lang="scss">
 	.spin-btn {
-		margin: 0 40px 12px;
-		background-color: #34a853;
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-bottom: 16px;
+		padding-top: 14px;
+		padding-bottom: 14px;
 		border-radius: 24px;
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: 600;
+		border-width: 0px;
 	}
 
-	.result-card {
-		margin: 0 16px 12px;
-		padding: 16px;
-		background-color: #ffffff;
-		border-radius: 12px;
-		border-width: 1px;
-		border-color: #cce8d4;
-		border-style: solid;
-	}
-
-	.result-title {
+	.spin-hint {
 		font-size: 13px;
-		color: #999999;
-		margin-bottom: 6px;
-	}
-
-	.result-name {
-		font-size: 20px;
-		font-weight: bold;
-		color: #333333;
-		margin-bottom: 4px;
-	}
-
-	.result-meta {
-		font-size: 13px;
-		color: #34a853;
+		color: $lb-text-3;
+		text-align: center;
 		margin-bottom: 12px;
 	}
 
-	.result-actions {
-		flex-direction: row;
-		flex-wrap: wrap;
-	}
-
-	.action-btn {
-		margin-right: 8px;
+	.chip {
+		padding-top: 6px;
+		padding-bottom: 6px;
+		padding-left: 16px;
+		padding-right: 16px;
+		border-radius: 16px;
+		font-size: 13px;
+		font-weight: 500;
+		margin-left: 4px;
+		margin-right: 4px;
 		margin-bottom: 4px;
 	}
 
-	.primary-btn {
-		background-color: #34a853;
+	.chip-fill {
+		color: #ffffff;
 	}
 
-	.pool-preview {
-		margin: 0 16px 16px;
-		padding: 12px 12px 24px;
-		background-color: #ffffff;
-		border-radius: 12px;
-	}
-
-	.section-title {
-		font-size: 14px;
-		font-weight: bold;
-		color: #333333;
-		margin-bottom: 8px;
-	}
-
-	.pool-item {
-		padding: 12px 0;
-		border-bottom-width: 1px;
-		border-bottom-color: #f0f0f0;
-		border-bottom-style: solid;
-	}
-
-	.pool-label {
-		font-size: 15px;
-		color: #555555;
-	}
-
-	.empty-row {
-		padding: 16px 0;
-	}
-
-	.empty-text {
-		font-size: 13px;
-		color: #999999;
-		text-align: center;
+	.chip-line {
+		background-color: $lb-bg;
+		color: $lb-text-2;
 	}
 </style>

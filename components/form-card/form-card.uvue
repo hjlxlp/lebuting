@@ -1,0 +1,19 @@
+<template>
+	<view class="form-card">
+		<slot></slot>
+	</view>
+</template>
+
+<style lang="scss">
+	.form-card {
+		margin-left: 16px;
+		margin-right: 16px;
+		margin-top: 12px;
+		padding-left: 16px;
+		padding-right: 16px;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		background-color: $lb-card;
+		border-radius: $lb-radius;
+	}
+</style>

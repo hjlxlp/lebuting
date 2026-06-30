@@ -1,0 +1,97 @@
+<template>
+	<view class="tab-bar">
+		<view
+			v-for="(item, index) in tabs"
+			:key="index"
+			class="tab-item"
+			@click="goTab(item)"
+		>
+			<text class="tab-icon" :style="iconStyle(item.key)">{{ item.icon }}</text>
+			<text class="tab-label" :style="labelStyle(item.key)">{{ item.label }}</text>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { getModuleConfig, type TabKey } from '../../utils/module-config.uts'
+
+	type TabView = {
+		key: TabKey
+		label: string
+		url: string
+		icon: string
+	}
+
+	const props = defineProps({
+		module: { type: String, default: 'eat-dish' },
+		current: { type: String, default: 'wheel' }
+	})
+
+	const config = getModuleConfig(props.module)
+	const themeColor = config.themeColor
+
+	const tabs = computed((): TabView[] => {
+		const icons = ['◷', '≡', '⊘', '☰', '▤']
+		const list: TabView[] = []
+		for (let i = 0; i < config.tabs.length; i++) {
+			const t = config.tabs[i]
+			list.push({
+				key: t.key,
+				label: t.label,
+				url: t.url,
+				icon: icons[i]
+			})
+		}
+		return list
+	})
+
+	function iconStyle(key: TabKey): UTSJSONObject {
+		if (props.current == key) {
+			return { color: themeColor, opacity: 1 } as UTSJSONObject
+		}
+		return { color: '#999999', opacity: 0.55 } as UTSJSONObject
+	}
+
+	function labelStyle(key: TabKey): UTSJSONObject {
+		if (props.current == key) {
+			return { color: themeColor, fontWeight: '500' } as UTSJSONObject
+		}
+		return { color: '#999999' } as UTSJSONObject
+	}
+
+	function goTab(item: TabView) {
+		if (props.current == item.key) {
+			uni.startPullDownRefresh()
+			return
+		}
+		uni.redirectTo({ url: item.url })
+	}
+</script>
+
+<style lang="scss">
+	.tab-bar {
+		height: 56px;
+		flex-direction: row;
+		background-color: $lb-card;
+		border-top-width: 1px;
+		border-top-color: $lb-line;
+		border-top-style: solid;
+		flex-shrink: 0;
+	}
+
+	.tab-item {
+		flex: 1;
+		align-items: center;
+		justify-content: center;
+		padding-top: 6px;
+	}
+
+	.tab-icon {
+		font-size: 18px;
+		margin-bottom: 3px;
+	}
+
+	.tab-label {
+		font-size: 10px;
+	}
+</style>

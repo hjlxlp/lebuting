@@ -41,6 +41,12 @@
 
 <style>
 	/*每个页面公共css */
+	.page-shell {
+		flex: 1;
+		flex-direction: column;
+		background-color: #f5f5f7;
+	}
+
 	.uni-row {
 		flex-direction: row;
 	}

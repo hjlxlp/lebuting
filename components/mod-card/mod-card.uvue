@@ -1,0 +1,146 @@
+<template>
+	<view class="mod-card" :class="disabled ? 'mod-card-disabled' : ''" @click="onClick">
+		<view class="mod-icon" :class="'mod-icon-' + iconType">
+			<text class="mod-icon-text">{{ iconText }}</text>
+		</view>
+		<view class="mod-body">
+			<view class="mod-name-row">
+				<text class="mod-name">{{ title }}</text>
+				<text v-if="tag.length > 0" class="mod-tag">{{ tag }}</text>
+			</view>
+			<text class="mod-desc">{{ desc }}</text>
+		</view>
+		<text class="mod-arrow">›</text>
+	</view>
+</template>
+
+<script setup lang="uts">
+	const props = defineProps({
+		iconType: { type: String, default: 'chat' },
+		title: { type: String, default: '' },
+		desc: { type: String, default: '' },
+		tag: { type: String, default: '' },
+		disabled: { type: Boolean, default: false }
+	})
+
+	const emit = defineEmits(['click'])
+
+	const iconText = computed((): string => {
+		if (props.iconType == 'eat') {
+			return '餐'
+		}
+		if (props.iconType == 'cook') {
+			return '厨'
+		}
+		if (props.iconType == 'bill') {
+			return '账'
+		}
+		return 'AI'
+	})
+
+	function onClick() {
+		emit('click')
+	}
+</script>
+
+<style lang="scss">
+	.mod-card {
+		flex-direction: row;
+		align-items: center;
+		padding: 16px;
+		margin-bottom: 10px;
+		background-color: $lb-card;
+		border-radius: $lb-radius;
+	}
+
+	.mod-card-disabled {
+		opacity: 0.92;
+	}
+
+	.mod-icon {
+		width: 46px;
+		height: 46px;
+		border-radius: 23px;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		margin-right: 14px;
+	}
+
+	.mod-icon-chat {
+		background-color: $lb-chat-soft;
+	}
+
+	.mod-icon-eat {
+		background-color: $lb-eat-soft;
+	}
+
+	.mod-icon-cook {
+		background-color: $lb-cook-soft;
+	}
+
+	.mod-icon-bill {
+		background-color: $lb-bill-soft;
+	}
+
+	.mod-icon-text {
+		font-size: 15px;
+		font-weight: 600;
+		color: $lb-chat-icon;
+	}
+
+	.mod-icon-eat .mod-icon-text {
+		color: $lb-eat;
+	}
+
+	.mod-icon-cook .mod-icon-text {
+		color: $lb-cook;
+	}
+
+	.mod-icon-bill .mod-icon-text {
+		color: $lb-bill;
+	}
+
+	.mod-body {
+		flex: 1;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.mod-name-row {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.mod-name {
+		font-size: 16px;
+		font-weight: 600;
+		color: $lb-text;
+	}
+
+	.mod-tag {
+		font-size: 10px;
+		color: $lb-action;
+		background-color: $lb-action-soft;
+		padding-left: 8px;
+		padding-right: 8px;
+		padding-top: 2px;
+		padding-bottom: 2px;
+		border-radius: 10px;
+		margin-left: 6px;
+		font-weight: 500;
+	}
+
+	.mod-desc {
+		font-size: 13px;
+		color: $lb-text-3;
+		margin-top: 2px;
+	}
+
+	.mod-arrow {
+		font-size: 20px;
+		color: #cccccc;
+		margin-left: 8px;
+	}
+</style>
