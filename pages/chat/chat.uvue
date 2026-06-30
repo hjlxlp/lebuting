@@ -40,7 +40,13 @@
 				confirm-type="send"
 				@confirm="sendMessage"
 			/>
-			<button class="compose-btn" :disabled="loading || !connected || inputText.trim().length == 0" @click="sendMessage">发送</button>
+			<view
+				class="btn-compose"
+				:class="loading || !connected || inputText.trim().length == 0 ? 'btn-compose-disabled' : ''"
+				@click="sendMessage"
+			>
+				<text class="btn-compose-text">发送</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -236,27 +242,15 @@
 
 	.compose-input {
 		flex: 1;
-		height: 40px;
+		height: 36px;
 		padding-left: 16px;
 		padding-right: 16px;
 		font-size: 15px;
 		background-color: $lb-bg;
-		border-radius: 20px;
+		border-radius: 18px;
 		border-width: 1px;
 		border-color: $lb-line;
 		border-style: solid;
 		margin-right: 8px;
-	}
-
-	.compose-btn {
-		height: 40px;
-		padding-left: 18px;
-		padding-right: 18px;
-		border-radius: 20px;
-		background-color: $lb-eat;
-		color: #ffffff;
-		font-size: 14px;
-		font-weight: 500;
-		border-width: 0px;
 	}
 </style>

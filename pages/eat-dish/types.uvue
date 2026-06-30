@@ -1,7 +1,7 @@
 <template>
 	<view class="page-shell">
 		<tool-bar :alignEnd="true">
-			<text class="add-btn" :style="addBtnStyle" @click="goAdd">+ 新增分类</text>
+			<text class="btn-add" :style="addBtnStyle" @click="goAdd">+ 新增分类</text>
 		</tool-bar>
 		<scroll-view class="page-scroll-list-top" scroll-y="true">
 			<empty-state v-if="loading" text="加载中..."></empty-state>
@@ -86,17 +86,6 @@
 </script>
 
 <style lang="scss">
-	.add-btn {
-		font-size: 13px;
-		font-weight: 500;
-		color: #ffffff;
-		padding-top: 6px;
-		padding-bottom: 6px;
-		padding-left: 14px;
-		padding-right: 14px;
-		border-radius: 16px;
-	}
-
 	.link-danger {
 		font-size: 13px;
 		color: $lb-eat;

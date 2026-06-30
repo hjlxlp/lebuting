@@ -3,7 +3,7 @@
 		<topbar :title="config.foodsTitle"></topbar>
 		<tool-bar>
 			<text class="link-gray" @click="goTypes">分类</text>
-			<text class="add-btn" :style="addBtnStyle" @click="goAdd">+ 新增</text>
+			<text class="btn-add" :style="addBtnStyle" @click="goAdd">+ 新增</text>
 		</tool-bar>
 		<scroll-view class="page-scroll-list-top" scroll-y="true">
 			<empty-state v-if="loading" text="加载中..."></empty-state>
@@ -131,17 +131,6 @@
 		padding-bottom: 6px;
 	}
 
-	.add-btn {
-		font-size: 13px;
-		font-weight: 500;
-		color: #ffffff;
-		padding-top: 6px;
-		padding-bottom: 6px;
-		padding-left: 14px;
-		padding-right: 14px;
-		border-radius: 16px;
-	}
-
 	.link-action {
 		font-size: 13px;
 		color: $lb-action;
@@ -151,7 +140,7 @@
 
 	.link-danger {
 		font-size: 13px;
-		color: $lb-eat;
+		color: $lb-cook;
 		padding-left: 6px;
 		padding-right: 6px;
 	}

@@ -1,7 +1,7 @@
 <template>
 	<view class="tag-picker">
 		<view
-			v-for="(item, index) in options"
+			v-for="(item, index) in tagList"
 			:key="index"
 			class="tag-item"
 			:class="value == item ? 'tag-item-on' : ''"
@@ -22,6 +22,15 @@
 	})
 
 	const emit = defineEmits(['update:value', 'change'])
+
+	const tagList = computed((): string[] => {
+		const result: string[] = []
+		const opts = props.options
+		for (let i = 0; i < opts.length; i++) {
+			result.push('' + opts[i])
+		}
+		return result
+	})
 
 	function pick(item: string) {
 		emit('update:value', item)

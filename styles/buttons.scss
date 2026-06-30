@@ -1,0 +1,106 @@
+/* 通用按钮 · 对齐改版前紧凑尺寸 */
+
+.btn-spin {
+	margin-left: 48px;
+	margin-right: 48px;
+	margin-bottom: 12px;
+	height: 40px;
+	border-radius: 20px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-spin-text {
+	font-size: 15px;
+	font-weight: 600;
+	color: #ffffff;
+}
+
+.btn-spin-disabled {
+	opacity: 0.45;
+}
+
+.btn-save {
+	margin-left: 16px;
+	margin-right: 16px;
+	margin-top: 20px;
+	height: 44px;
+	border-radius: 12px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-save-text {
+	font-size: 16px;
+	font-weight: 500;
+	color: #ffffff;
+}
+
+.btn-save-disabled {
+	opacity: 0.45;
+}
+
+.btn-chip {
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 14px;
+	padding-right: 14px;
+	border-radius: 14px;
+	margin-left: 4px;
+	margin-right: 4px;
+	margin-bottom: 4px;
+}
+
+.btn-chip-text {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.btn-chip-fill .btn-chip-text {
+	color: #ffffff;
+}
+
+.btn-chip-line {
+	background-color: $lb-bg;
+}
+
+.btn-chip-line .btn-chip-text {
+	color: $lb-text-2;
+}
+
+.btn-add {
+	font-size: 13px;
+	font-weight: 500;
+	color: #ffffff;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 12px;
+	padding-right: 12px;
+	border-radius: 14px;
+}
+
+.btn-compose {
+	width: 56px;
+	height: 36px;
+	border-radius: 18px;
+	background-color: $lb-eat;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.btn-compose-text {
+	font-size: 14px;
+	font-weight: 500;
+	color: #ffffff;
+}
+
+.btn-compose-disabled {
+	opacity: 0.45;
+}

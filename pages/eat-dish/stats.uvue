@@ -6,7 +6,7 @@
 			<view v-else-if="loadError.length > 0" class="stat-error">
 				<empty-state :text="loadError" :error="true" :retry="true" themeColor="#e85d5d" @retry="loadStats"></empty-state>
 			</view>
-			<stat-card v-else module="eat-dish" :label="month" :value="totalCount + ' 次'"></stat-card>
+			<stat-card v-else module="eat-dish" :label="month" :value="countText"></stat-card>
 
 			<section-title text="本月榜单"></section-title>
 			<empty-state v-if="!loading && loadError.length == 0 && ranking.length == 0" text="本月还没有记录"></empty-state>
@@ -20,7 +20,7 @@
 				:hasRight="true"
 			>
 				<template v-slot:right>
-					<text class="row-amt" :style="countStyle">{{ item.month_count }}</text>
+					<text class="row-amt" :style="countStyle">{{ formatInt(item.month_count) }}</text>
 				</template>
 			</list-row>
 		</scroll-view>
@@ -46,12 +46,20 @@
 	const loading = ref(false)
 	const loadError = ref('')
 
+	function formatInt(n: number): string {
+		return '' + parseInt('' + n)
+	}
+
 	const countStyle = computed((): UTSJSONObject => {
 		return { color: config.themeColor } as UTSJSONObject
 	})
 
+	const countText = computed((): string => {
+		return formatInt(totalCount.value) + ' 次'
+	})
+
 	function buildSubtitle(item: RankRow): string {
-		let text = '总计 ' + item.total + ' 次'
+		let text = '总计 ' + formatInt(item.total) + ' 次'
 		if (item.lastShort.length > 0) {
 			text = text + ' · 最近 ' + item.lastShort
 		}

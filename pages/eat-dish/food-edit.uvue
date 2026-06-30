@@ -15,7 +15,9 @@
 				<input class="field-input" v-model="note" placeholder="可选" />
 			</view>
 		</form-card>
-		<button class="save-btn" :style="saveBtnStyle" :disabled="saving" @click="save">{{ saving ? '保存中…' : '保存' }}</button>
+		<view class="btn-save" :class="saving ? 'btn-save-disabled' : ''" :style="saveBtnStyle" @click="save">
+			<text class="btn-save-text">{{ saving ? '保存中…' : '保存' }}</text>
+		</view>
 		<text v-if="foodId > 0" class="delete-btn" @click="confirmDelete">删除候选</text>
 	</view>
 </template>
@@ -180,19 +182,6 @@
 	.field-link {
 		font-size: 13px;
 		margin-top: 10px;
-	}
-
-	.save-btn {
-		margin-left: 16px;
-		margin-right: 16px;
-		margin-top: 20px;
-		padding-top: 14px;
-		padding-bottom: 14px;
-		border-radius: $lb-radius;
-		color: #ffffff;
-		font-size: 16px;
-		font-weight: 500;
-		border-width: 0px;
 	}
 
 	.delete-btn {

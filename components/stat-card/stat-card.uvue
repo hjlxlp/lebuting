@@ -29,11 +29,14 @@
 		margin-left: 16px;
 		margin-right: 16px;
 		margin-top: 12px;
-		padding-top: 22px;
-		padding-bottom: 22px;
+		padding-top: 16px;
+		padding-bottom: 16px;
 		padding-left: 18px;
 		padding-right: 18px;
 		border-radius: $lb-radius;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	.stat-card-plain .stat-label {
@@ -47,12 +50,14 @@
 	.stat-label {
 		font-size: 14px;
 		color: rgba(255, 255, 255, 0.85);
-		margin-bottom: 6px;
+		flex: 1;
 	}
 
 	.stat-num {
-		font-size: 26px;
+		font-size: 22px;
 		font-weight: 700;
 		color: #ffffff;
+		flex-shrink: 0;
+		margin-left: 12px;
 	}
 </style>

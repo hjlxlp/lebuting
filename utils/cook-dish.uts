@@ -137,8 +137,8 @@ function parseStat(raw: ApiPayload): CookDishStat {
 	return {
 		food_id: raw['food_id'] as number,
 		label: raw['label'] as string,
-		total: raw['total'] as number,
-		month_count: raw['month_count'] as number,
+		total: parseInt('' + (raw['total'] as number)),
+		month_count: parseInt('' + (raw['month_count'] as number)),
 		last_cooked_at: raw['last_cooked_at'] as string
 	}
 }
@@ -394,7 +394,7 @@ export function getCookDishMonthCount(foodId: number): Promise<number> {
 	return new Promise((resolve, reject) => {
 		requestEnvelope('GET', API_PREFIX + '/stats/food/' + foodId, null).then((envelope: ApiEnvelope) => {
 			const data = parsePayloadObject(envelope.dataText)!
-			resolve(data['month_count'] as number)
+			resolve(parseInt('' + (data['month_count'] as number)))
 		}).catch((err) => {
 			reject(err)
 		})
@@ -412,7 +412,7 @@ export function getCookDishStatsSummary(): Promise<CookDishStatsSummary> {
 			}
 			const summary: CookDishStatsSummary = {
 				month: data['month'] as string,
-				total_count: data['total_count'] as number,
+				total_count: parseInt('' + (data['total_count'] as number)),
 				ranking: ranking
 			}
 			resolve(summary)

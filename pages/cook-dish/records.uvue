@@ -12,8 +12,12 @@
 					:key="index"
 					:title="item.label"
 					:subtitle="item.mealText"
+					:hasOps="true"
 					:hasRight="true"
 				>
+					<template v-slot:ops>
+						<text class="link-danger" @click.stop="confirmDelete(item.id, item.label)">删除</text>
+					</template>
 					<template v-slot:right>
 						<text class="record-time">{{ item.timeText }}</text>
 					</template>
@@ -28,6 +32,7 @@
 	import { COOK_DISH_CONFIG } from '../../utils/module-config.uts'
 	import {
 		listCookDishRecords,
+		deleteCookDishRecord,
 		cookDishRecordLabel,
 		cookDishMealLabel,
 		formatCookDishDateTime,
@@ -89,6 +94,23 @@
 		})
 	}
 
+	function confirmDelete(id: number, label: string) {
+		uni.showModal({
+			title: '删除记录',
+			content: '确定删除「' + label + '」这条记录？',
+			success: (res) => {
+				if (res.confirm) {
+					deleteCookDishRecord(id).then(() => {
+						loadList()
+						uni.showToast({ title: '已删除', icon: 'none' })
+					}).catch((err) => {
+						uni.showToast({ title: '' + err, icon: 'none' })
+					})
+				}
+			}
+		})
+	}
+
 	onShow(() => {
 		loadList()
 	})
@@ -105,5 +127,12 @@
 		font-size: 14px;
 		font-weight: 500;
 		color: $lb-text;
+	}
+
+	.link-danger {
+		font-size: 13px;
+		color: $lb-cook;
+		padding-left: 6px;
+		padding-right: 6px;
 	}
 </style>

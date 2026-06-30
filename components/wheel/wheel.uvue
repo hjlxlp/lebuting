@@ -58,8 +58,8 @@
 
 	.wheel-stage {
 		position: absolute;
-		top: 0;
 		left: 0;
+		top: 0;
 		width: 168px;
 		height: 168px;
 	}
@@ -80,12 +80,12 @@
 
 	.wheel-dot {
 		position: absolute;
-		width: 14px;
-		height: 14px;
 		left: 77px;
 		top: 77px;
+		width: 14px;
+		height: 14px;
 		border-radius: 7px;
-		border-width: 3px;
+		border-width: 2px;
 		border-color: #ffffff;
 		border-style: solid;
 		z-index: 2;

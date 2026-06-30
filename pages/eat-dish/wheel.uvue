@@ -3,13 +3,26 @@
 		<topbar :title="config.wheelTitle" :light="true"></topbar>
 		<scroll-view class="page-scroll-tab" scroll-y="true">
 			<wheel module="eat-dish" :rotate="wheelRotate"></wheel>
-			<button class="spin-btn" :disabled="spinning || poolSize < 2" :style="spinBtnStyle" @click="doSpin">{{ config.spinLabel }}</button>
+			<view
+				class="btn-spin"
+				:class="spinning || poolSize < 2 ? 'btn-spin-disabled' : ''"
+				:style="spinBtnStyle"
+				@click="doSpin"
+			>
+				<text class="btn-spin-text">{{ config.spinLabel }}</text>
+			</view>
 			<text v-if="poolSize < 2 && !poolLoading" class="spin-hint">至少 2 个可选项才能转</text>
 
 			<result-panel module="eat-dish" :visible="resultFood != null" :name="resultLabel" :meta="'本月已吃 ' + resultMonthCount + ' 次'">
-				<text class="chip chip-fill" :style="chipFillStyle" @click="doRecord">{{ config.recordAction }}</text>
-				<text class="chip chip-line" @click="doExclude">{{ config.excludeAction }}</text>
-				<text class="chip chip-line" @click="doSpin">再转</text>
+				<view class="btn-chip btn-chip-fill" :style="chipFillStyle" @click="doRecord">
+					<text class="btn-chip-text">{{ config.recordAction }}</text>
+				</view>
+				<view class="btn-chip btn-chip-line" @click="doExclude">
+					<text class="btn-chip-text">{{ config.excludeAction }}</text>
+				</view>
+				<view class="btn-chip btn-chip-line" @click="doSpin">
+					<text class="btn-chip-text">再转</text>
+				</view>
 			</result-panel>
 
 			<section-title text="当前候选"></section-title>
@@ -144,45 +157,10 @@
 </script>
 
 <style lang="scss">
-	.spin-btn {
-		margin-left: 16px;
-		margin-right: 16px;
-		margin-bottom: 16px;
-		padding-top: 14px;
-		padding-bottom: 14px;
-		border-radius: 24px;
-		color: #ffffff;
-		font-size: 16px;
-		font-weight: 600;
-		border-width: 0px;
-	}
-
 	.spin-hint {
 		font-size: 13px;
 		color: $lb-text-3;
 		text-align: center;
 		margin-bottom: 12px;
-	}
-
-	.chip {
-		padding-top: 6px;
-		padding-bottom: 6px;
-		padding-left: 16px;
-		padding-right: 16px;
-		border-radius: 16px;
-		font-size: 13px;
-		font-weight: 500;
-		margin-left: 4px;
-		margin-right: 4px;
-		margin-bottom: 4px;
-	}
-
-	.chip-fill {
-		color: #ffffff;
-	}
-
-	.chip-line {
-		background-color: $lb-bg;
-		color: $lb-text-2;
 	}
 </style>
