@@ -43,11 +43,7 @@
         <!-- 首页 -->
         <div class="page on" id="p-home">
           <div class="scroll">
-            <header class="app-head">
-              <div class="eyebrow">下午好</div>
-              <h1>乐不停</h1>
-            </header>
-            <div class="mod-list">
+            <div class="mod-list mod-list-top">
               <button class="mod-card" data-mod="chat">
                 <span class="mod-icon agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8 8 0 01-7.6 4.7 8 8 0 01-3.8-.9L3 21l1.9-5.7a8 8 0 01-.9-3.8 8.4 8.4 0 014.7-7.6 8 8 0 013.8-.9h.4a8.5 8.5 0 018.1 8.1z"/></svg></span>
                 <span class="mod-body"><span class="mod-name">Agent</span><span class="mod-desc">与渣渣乐对话</span></span>
@@ -74,7 +70,7 @@
 
         <!-- Agent -->
         <div class="page" id="p-chat">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">Agent</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">Agent</div><span class="topgap"></span></header>
           <div class="status"><span class="dot live"></span>已连接 · hermes-agent</div>
           <div class="msgs" id="chat-msgs"><div class="bubble ai">需要什么帮助？</div></div>
           <div class="compose"><input id="chat-in" placeholder="输入消息..." /><button id="chat-go">发送</button></div>
@@ -82,11 +78,12 @@
 
         <!-- 吃什么 转盘 -->
         <div class="page" id="p-eat-wheel">
-          <header class="topbar back-white"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">吃什么</div><span class="topgap"></span></header>
+          <header class="topbar back-white"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃什么</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
-            <p class="hint-bar">转盘池 6 项</p>
             <div class="wheel-wrap"><div class="wheel"><div class="wheel-needle" id="eat-ndl"></div><div class="wheel-dot"></div></div></div>
-            <button class="btn-main" id="eat-go">转一转</button>
+            <div class="spin-area">
+              <button class="btn-main" id="eat-go">转一转</button>
+            </div>
             <div class="result" id="eat-res" hidden>
               <div class="result-tag">就吃这个</div>
               <div class="result-name" id="eat-rn">—</div>
@@ -109,7 +106,7 @@
 
         <!-- 吃什么 候选 -->
         <div class="page" id="p-eat-foods">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">吃饭候选</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃饭候选</div><span class="topgap"></span></header>
           <div class="bar"><button class="link gray">分类</button><button class="add">+ 新增</button></div>
           <div class="scroll tab-pad">
             <div class="row"><div class="row-main"><div class="row-title">成都你六姐 · 火锅</div><div class="row-sub">公司楼下</div></div><div class="row-ops"><button class="link">不吃</button><button class="link red">删除</button></div></div>
@@ -127,7 +124,7 @@
 
         <!-- 吃什么 不吃 -->
         <div class="page" id="p-eat-excluded">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">今天不吃</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">今天不吃</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
             <div class="row"><div class="row-main"><div class="row-title">寿司郎 · 日料</div><div class="row-sub">暂不参与转盘</div></div><button class="link">恢复</button></div>
             <div class="row"><div class="row-main"><div class="row-title">麦当劳 · 快餐</div></div><button class="link">恢复</button></div>
@@ -143,7 +140,7 @@
 
         <!-- 吃什么 记录 -->
         <div class="page" id="p-eat-records">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">吃过记录</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃过记录</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
             <div class="section-hd">6 月 26 日</div>
             <div class="row"><div class="row-main"><div class="row-title">张亮麻辣烫 · 火锅</div><div class="row-sub">午餐</div></div><div class="row-right"><div class="row-amt" style="font-size:14px;font-weight:500">12:00</div></div></div>
@@ -161,7 +158,7 @@
 
         <!-- 吃什么 统计 -->
         <div class="page" id="p-eat-stats">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">吃饭统计</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃饭统计</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
             <div class="stat-card"><div class="stat-label">2026 年 6 月</div><div class="stat-num">12 次</div></div>
             <div class="section-hd">本月榜单</div>
@@ -179,11 +176,12 @@
 
         <!-- 做什么 转盘 -->
         <div class="page" id="p-cook-wheel">
-          <header class="topbar back-white"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">做什么</div><span class="topgap"></span></header>
+          <header class="topbar back-white"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做什么</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
-            <p class="hint-bar">转盘池 5 项</p>
             <div class="wheel-wrap"><div class="wheel cook"><div class="wheel-needle" id="cook-ndl"></div><div class="wheel-dot"></div></div></div>
-            <button class="btn-main cook" id="cook-go">转一转</button>
+            <div class="spin-area">
+              <button class="btn-main cook" id="cook-go">转一转</button>
+            </div>
             <div class="result cook" id="cook-res" hidden>
               <div class="result-tag">就做这个</div>
               <div class="result-name" id="cook-rn">—</div>
@@ -205,7 +203,7 @@
 
         <!-- 做什么 候选/不做/记录/统计 略同结构 -->
         <div class="page" id="p-cook-foods">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">做菜候选</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做菜候选</div><span class="topgap"></span></header>
           <div class="bar cook"><button class="link gray">分类</button><button class="add">+ 新增</button></div>
           <div class="scroll tab-pad">
             <div class="row"><div class="row-main"><div class="row-title">番茄炒蛋 · 家常菜</div><div class="row-sub">约 15 分钟</div></div><div class="row-ops"><button class="link">不做</button><button class="link red">删除</button></div></div>
@@ -221,7 +219,7 @@
         </div>
 
         <div class="page" id="p-cook-excluded">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">今天不做</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">今天不做</div><span class="topgap"></span></header>
           <div class="scroll tab-pad"><div class="row"><div class="row-main"><div class="row-title">糖醋排骨 · 硬菜</div></div><button class="link">恢复</button></div></div>
           <nav class="tabs cook">
             <button data-go="cook-wheel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>转盘</button>
@@ -233,7 +231,7 @@
         </div>
 
         <div class="page" id="p-cook-records">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">做过记录</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做过记录</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
             <div class="section-hd">6 月 28 日</div>
             <div class="row"><div class="row-main"><div class="row-title">番茄炒蛋 · 家常菜</div><div class="row-sub">晚餐</div></div><div class="row-right"><div class="row-amt" style="font-size:14px;font-weight:500">18:30</div></div></div>
@@ -248,7 +246,7 @@
         </div>
 
         <div class="page" id="p-cook-stats">
-          <header class="topbar"><button class="topbtn" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">做菜统计</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做菜统计</div><span class="topgap"></span></header>
           <div class="scroll tab-pad">
             <div class="stat-card cook"><div class="stat-label">2026 年 6 月</div><div class="stat-num">7 次</div></div>
             <div class="section-hd">本月榜单</div>
@@ -266,9 +264,9 @@
         <!-- 记账首页 -->
         <div class="page" id="p-bill-home">
           <header class="topbar back-white">
-            <button class="topbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+            <button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
             <div class="toptitle">我的记账本 ▾</div>
-            <button class="topbtn" data-go="home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+            <button type="button" class="topbtn" aria-label="搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
           </header>
           <div class="scroll fab-pad">
             <div class="card money-card">
@@ -313,7 +311,7 @@
 
         <!-- 记一笔 -->
         <div class="page" id="p-bill-add">
-          <header class="topbar"><button class="topbtn" data-go="bill-home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="toptitle">记一笔</div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn close" data-go="bill-home" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="toptitle">记一笔</div><span class="topgap"></span></header>
           <div class="type-row">
             <button class="on">支出</button><button>收入</button><button>转账</button><button>借贷</button>
           </div>
@@ -345,7 +343,7 @@
 
         <!-- 图表分析 -->
         <div class="page" id="p-bill-charts">
-          <header class="topbar"><button class="topbtn" data-go="bill-home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">图表分析</div><button class="topbtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="bill-home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">图表分析</div><button class="topbtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button></header>
           <div class="scroll">
             <div class="card chart-card">
               <p class="summary-line">2026年6月账单 (06.01~06.30)<br>共 136 笔支出，<b>9914.66</b><br>共 0 笔收入，0.00<span class="bal">结余 -9914.66</span></p>
@@ -374,7 +372,7 @@
 
         <!-- 分类管理 -->
         <div class="page" id="p-bill-categories">
-          <header class="topbar"><button class="topbtn" data-go="bill-add"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><div class="toptitle">分类管理<span class="topsub">默认账本</span></div><span class="topgap"></span></header>
+          <header class="topbar"><button type="button" class="topbtn back" data-go="bill-add" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">分类管理<span class="topsub">默认账本</span></div><span class="topgap"></span></header>
           <div class="switch-row"><button class="on">支出</button><button>收入</button></div>
           <div class="scroll">
             <div class="mgmt-row"><span class="arrow">▸</span><span class="ico red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v8M5 3v5M11 3v5M8 11v10M16 3c1 2 2 4 2 7a5 5 0 01-10 0c0-3 1-5 2-7h6z"/></svg></span><span class="row-title">餐饮</span><span class="mgmt-ops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.2a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 01-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.2a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 012.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.2a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 012.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9c.6.3 1.2.5 1.9.5H21a2 2 0 010 4h-.2a1.7 1.7 0 00-1.5 1z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h16M4 16h16"/></svg></span></div>

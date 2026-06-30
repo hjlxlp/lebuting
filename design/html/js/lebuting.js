@@ -40,7 +40,9 @@
       btn.addEventListener("click", function () {
         deg[mod] += 720 + Math.floor(Math.random() * 360);
         ndl.style.transform = "translate(-50%, -100%) rotate(" + deg[mod] + "deg)";
+        btn.disabled = true;
         setTimeout(function () {
+          btn.disabled = false;
           if (!res) return;
           res.hidden = false;
           document.getElementById(mod + "-rn").textContent = data[mod].n;
