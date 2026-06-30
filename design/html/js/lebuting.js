@@ -15,6 +15,11 @@
       b.addEventListener("click", function () { go(b.dataset.screen); });
     });
     document.addEventListener("click", function (e) {
+      var row = e.target.closest(".row-tap");
+      if (row && !e.target.closest(".row-ops")) {
+        var goId = row.dataset.go;
+        if (goId) { e.preventDefault(); go(goId); return; }
+      }
       var t = e.target.closest("[data-go]");
       if (t) { e.preventDefault(); go(t.dataset.go); }
     });
@@ -97,9 +102,10 @@
       });
     });
 
-    $$(".type-row, .switch-row, .seg").forEach(function (g) {
+    $$(".type-row, .switch-row, .seg, .tag-row").forEach(function (g) {
       $$("button", g).forEach(function (b) {
-        b.addEventListener("click", function () {
+        b.addEventListener("click", function (e) {
+          e.stopPropagation();
           $$("button", g).forEach(function (x) { x.classList.remove("on"); });
           b.classList.add("on");
         });

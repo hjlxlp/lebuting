@@ -11,7 +11,7 @@
   <aside class="side">
     <div class="side-head">
       <h1>乐不停 · 原型</h1>
-      <p>记账 App 风格 · 17 屏</p>
+      <p>记账 App 风格 · 全模块原型</p>
     </div>
     <div class="side-group"><div class="side-label">入口</div>
       <button class="side-item on" data-screen="home">首页</button></div>
@@ -22,13 +22,25 @@
       <button class="side-item" data-screen="eat-foods">候选</button>
       <button class="side-item" data-screen="eat-excluded">今天不吃</button>
       <button class="side-item" data-screen="eat-records">记录</button>
-      <button class="side-item" data-screen="eat-stats">统计</button></div>
+      <button class="side-item" data-screen="eat-stats">统计</button>
+      <button class="side-item" data-screen="eat-food-add">新增候选</button>
+      <button class="side-item" data-screen="eat-food-edit">编辑候选</button>
+      <button class="side-item" data-screen="eat-types">分类管理</button>
+      <button class="side-item" data-screen="eat-type-add">新增分类</button>
+      <button class="side-item" data-screen="eat-modal-food">弹窗·删候选</button>
+      <button class="side-item" data-screen="eat-modal-type">弹窗·删分类</button></div>
     <div class="side-group"><div class="side-label">做什么</div>
       <button class="side-item" data-screen="cook-wheel">转盘</button>
       <button class="side-item" data-screen="cook-foods">候选</button>
       <button class="side-item" data-screen="cook-excluded">今天不做</button>
       <button class="side-item" data-screen="cook-records">记录</button>
-      <button class="side-item" data-screen="cook-stats">统计</button></div>
+      <button class="side-item" data-screen="cook-stats">统计</button>
+      <button class="side-item" data-screen="cook-food-add">新增候选</button>
+      <button class="side-item" data-screen="cook-food-edit">编辑候选</button>
+      <button class="side-item" data-screen="cook-types">分类管理</button>
+      <button class="side-item" data-screen="cook-type-add">新增分类</button>
+      <button class="side-item" data-screen="cook-modal-food">弹窗·删候选</button>
+      <button class="side-item" data-screen="cook-modal-type">弹窗·删分类</button></div>
     <div class="side-group"><div class="side-label">记账</div>
       <button class="side-item" data-screen="bill-home">首页</button>
       <button class="side-item" data-screen="bill-add">记一笔</button>
@@ -85,7 +97,6 @@
               <button class="btn-main" id="eat-go">转一转</button>
             </div>
             <div class="result" id="eat-res" hidden>
-              <div class="result-tag">就吃这个</div>
               <div class="result-name" id="eat-rn">—</div>
               <div class="result-meta" id="eat-rm">—</div>
               <div class="result-btns"><button class="chip fill">记一笔</button><button class="chip line">今天不吃</button><button class="chip line">再转</button></div>
@@ -107,11 +118,11 @@
         <!-- 吃什么 候选 -->
         <div class="page" id="p-eat-foods">
           <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃饭候选</div><span class="topgap"></span></header>
-          <div class="bar"><button class="link gray">分类</button><button class="add">+ 新增</button></div>
-          <div class="scroll tab-pad">
-            <div class="row"><div class="row-main"><div class="row-title">成都你六姐 · 火锅</div><div class="row-sub">公司楼下</div></div><div class="row-ops"><button class="link">不吃</button><button class="link red">删除</button></div></div>
-            <div class="row"><div class="row-main"><div class="row-title">兰州拉面 · 面食</div></div><div class="row-ops"><button class="link">不吃</button><button class="link red">删除</button></div></div>
-            <div class="row"><div class="row-main"><div class="row-title">麦当劳 · 快餐</div></div><div class="row-ops"><button class="link gray">已排除</button><button class="link red">删除</button></div></div>
+          <div class="bar"><button type="button" class="link gray" data-go="eat-types">分类</button><button type="button" class="add" data-go="eat-food-add">+ 新增</button></div>
+          <div class="scroll tab-pad list-top">
+            <div class="row row-tap" data-go="eat-food-edit"><div class="row-main"><div class="row-title">成都你六姐 · 火锅</div><div class="row-sub">公司楼下</div></div><div class="row-ops"><button type="button" class="link">不吃</button><button type="button" class="link red" data-go="eat-modal-food">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-food-edit"><div class="row-main"><div class="row-title">兰州拉面 · 面食</div></div><div class="row-ops"><button type="button" class="link">不吃</button><button type="button" class="link red" data-go="eat-modal-food">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-food-edit"><div class="row-main"><div class="row-title">麦当劳 · 快餐</div></div><div class="row-ops"><button type="button" class="link gray">已排除</button><button type="button" class="link red" data-go="eat-modal-food">删除</button></div></div>
           </div>
           <nav class="tabs">
             <button data-go="eat-wheel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>转盘</button>
@@ -125,7 +136,7 @@
         <!-- 吃什么 不吃 -->
         <div class="page" id="p-eat-excluded">
           <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">今天不吃</div><span class="topgap"></span></header>
-          <div class="scroll tab-pad">
+          <div class="scroll tab-pad list-top">
             <div class="row"><div class="row-main"><div class="row-title">寿司郎 · 日料</div><div class="row-sub">暂不参与转盘</div></div><button class="link">恢复</button></div>
             <div class="row"><div class="row-main"><div class="row-title">麦当劳 · 快餐</div></div><button class="link">恢复</button></div>
           </div>
@@ -174,6 +185,82 @@
           </nav>
         </div>
 
+        <!-- 吃什么 · 新增候选 -->
+        <div class="page" id="p-eat-food-add">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="eat-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">新增候选</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card">
+              <div class="field"><label class="field-label">名称</label><input class="field-input" placeholder="如：成都你六姐" value="" /></div>
+              <div class="field"><label class="field-label">类型</label><div class="tag-row"><button type="button" class="tag-pick on">火锅</button><button type="button" class="tag-pick">面食</button><button type="button" class="tag-pick">快餐</button><button type="button" class="tag-pick">日料</button><button type="button" class="tag-pick">其他</button></div><button type="button" class="field-link" data-go="eat-types">管理分类</button></div>
+              <div class="field"><label class="field-label">备注</label><input class="field-input" placeholder="可选" value="" /></div>
+            </div>
+            <button type="button" class="btn-save" data-go="eat-foods">保存</button>
+          </div>
+        </div>
+
+        <!-- 吃什么 · 编辑候选 -->
+        <div class="page" id="p-eat-food-edit">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="eat-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">编辑候选</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card">
+              <div class="field"><label class="field-label">名称</label><input class="field-input" value="成都你六姐" /></div>
+              <div class="field"><label class="field-label">类型</label><div class="tag-row"><button type="button" class="tag-pick on">火锅</button><button type="button" class="tag-pick">面食</button><button type="button" class="tag-pick">快餐</button><button type="button" class="tag-pick">日料</button><button type="button" class="tag-pick">其他</button></div><button type="button" class="field-link" data-go="eat-types">管理分类</button></div>
+              <div class="field"><label class="field-label">备注</label><input class="field-input" value="公司楼下" /></div>
+            </div>
+            <button type="button" class="btn-save" data-go="eat-foods">保存</button>
+            <button type="button" class="btn-del" data-go="eat-modal-food">删除候选</button>
+          </div>
+        </div>
+
+        <!-- 吃什么 · 分类管理 -->
+        <div class="page" id="p-eat-types">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="eat-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">吃饭分类</div><span class="topgap"></span></header>
+          <div class="bar bar-end"><button type="button" class="add" data-go="eat-type-add">新增分类</button></div>
+          <div class="scroll list-top">
+            <div class="row row-tap" data-go="eat-type-edit"><div class="row-main"><div class="row-title">火锅</div></div><div class="row-ops"><button type="button" class="link red" data-go="eat-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-type-edit"><div class="row-main"><div class="row-title">面食</div></div><div class="row-ops"><button type="button" class="link red" data-go="eat-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-type-edit"><div class="row-main"><div class="row-title">快餐</div></div><div class="row-ops"><button type="button" class="link red" data-go="eat-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-type-edit"><div class="row-main"><div class="row-title">日料</div></div><div class="row-ops"><button type="button" class="link red" data-go="eat-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="eat-type-edit"><div class="row-main"><div class="row-title">其他</div></div><div class="row-ops"><button type="button" class="link red" data-go="eat-modal-type">删除</button></div></div>
+          </div>
+        </div>
+
+        <!-- 吃什么 · 新增/编辑分类 -->
+        <div class="page" id="p-eat-type-add">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="eat-types" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">新增分类</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card"><div class="field"><label class="field-label">分类名称</label><input class="field-input" placeholder="如：火锅" value="" /></div></div>
+            <button type="button" class="btn-save" data-go="eat-types">保存</button>
+          </div>
+        </div>
+        <div class="page" id="p-eat-type-edit">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="eat-types" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">编辑分类</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card"><div class="field"><label class="field-label">分类名称</label><input class="field-input" value="火锅" /></div></div>
+            <button type="button" class="btn-save" data-go="eat-types">保存</button>
+          </div>
+        </div>
+
+        <!-- 吃什么 · 弹窗 -->
+        <div class="page modal-page" id="p-eat-modal-food">
+          <div class="modal-layer">
+            <div class="modal-box">
+              <div class="modal-title">删除候选</div>
+              <p class="modal-text">确定删除？相关记录也会删除</p>
+              <div class="modal-actions"><button type="button" class="modal-btn" data-go="eat-foods">取消</button><button type="button" class="modal-btn danger" data-go="eat-foods">确定</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="page modal-page" id="p-eat-modal-type">
+          <div class="modal-layer">
+            <div class="modal-box">
+              <div class="modal-title">删除分类</div>
+              <p class="modal-text">确定删除「火锅」？分类下有候选时无法删除</p>
+              <div class="modal-actions"><button type="button" class="modal-btn" data-go="eat-types">取消</button><button type="button" class="modal-btn danger" data-go="eat-types">确定</button></div>
+            </div>
+          </div>
+        </div>
+
         <!-- 做什么 转盘 -->
         <div class="page" id="p-cook-wheel">
           <header class="topbar back-white"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做什么</div><span class="topgap"></span></header>
@@ -183,7 +270,6 @@
               <button class="btn-main cook" id="cook-go">转一转</button>
             </div>
             <div class="result cook" id="cook-res" hidden>
-              <div class="result-tag">就做这个</div>
               <div class="result-name" id="cook-rn">—</div>
               <div class="result-meta" id="cook-rm">—</div>
               <div class="result-btns"><button class="chip fill green">记一笔</button><button class="chip line">今天不做</button><button class="chip line">再转</button></div>
@@ -204,10 +290,10 @@
         <!-- 做什么 候选/不做/记录/统计 略同结构 -->
         <div class="page" id="p-cook-foods">
           <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做菜候选</div><span class="topgap"></span></header>
-          <div class="bar cook"><button class="link gray">分类</button><button class="add">+ 新增</button></div>
-          <div class="scroll tab-pad">
-            <div class="row"><div class="row-main"><div class="row-title">番茄炒蛋 · 家常菜</div><div class="row-sub">约 15 分钟</div></div><div class="row-ops"><button class="link">不做</button><button class="link red">删除</button></div></div>
-            <div class="row"><div class="row-main"><div class="row-title">红烧肉 · 硬菜</div></div><div class="row-ops"><button class="link">不做</button><button class="link red">删除</button></div></div>
+          <div class="bar cook"><button type="button" class="link gray" data-go="cook-types">分类</button><button type="button" class="add" data-go="cook-food-add">+ 新增</button></div>
+          <div class="scroll tab-pad list-top">
+            <div class="row row-tap" data-go="cook-food-edit"><div class="row-main"><div class="row-title">番茄炒蛋 · 家常菜</div><div class="row-sub">约 15 分钟</div></div><div class="row-ops"><button type="button" class="link">不做</button><button type="button" class="link red" data-go="cook-modal-food">删除</button></div></div>
+            <div class="row row-tap" data-go="cook-food-edit"><div class="row-main"><div class="row-title">红烧肉 · 硬菜</div></div><div class="row-ops"><button type="button" class="link">不做</button><button type="button" class="link red" data-go="cook-modal-food">删除</button></div></div>
           </div>
           <nav class="tabs cook">
             <button data-go="cook-wheel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>转盘</button>
@@ -220,7 +306,7 @@
 
         <div class="page" id="p-cook-excluded">
           <header class="topbar"><button type="button" class="topbtn back" data-go="home" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">今天不做</div><span class="topgap"></span></header>
-          <div class="scroll tab-pad"><div class="row"><div class="row-main"><div class="row-title">糖醋排骨 · 硬菜</div></div><button class="link">恢复</button></div></div>
+          <div class="scroll tab-pad list-top"><div class="row"><div class="row-main"><div class="row-title">糖醋排骨 · 硬菜</div></div><button class="link">恢复</button></div></div>
           <nav class="tabs cook">
             <button data-go="cook-wheel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>转盘</button>
             <button data-go="cook-foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>候选</button>
@@ -259,6 +345,82 @@
             <button data-go="cook-records"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>记录</button>
             <button class="on" data-go="cook-stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 17V11M12 17V7M16 17v-4"/></svg>统计</button>
           </nav>
+        </div>
+
+        <!-- 做什么 · 新增候选 -->
+        <div class="page" id="p-cook-food-add">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="cook-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">新增候选</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card">
+              <div class="field"><label class="field-label">名称</label><input class="field-input" placeholder="如：番茄炒蛋" value="" /></div>
+              <div class="field"><label class="field-label">类型</label><div class="tag-row cook"><button type="button" class="tag-pick on">家常菜</button><button type="button" class="tag-pick">硬菜</button><button type="button" class="tag-pick">快手</button><button type="button" class="tag-pick">汤羹</button><button type="button" class="tag-pick">其他</button></div><button type="button" class="field-link cook" data-go="cook-types">管理分类</button></div>
+              <div class="field"><label class="field-label">备注</label><input class="field-input" placeholder="可选，如：约 15 分钟" value="" /></div>
+            </div>
+            <button type="button" class="btn-save cook" data-go="cook-foods">保存</button>
+          </div>
+        </div>
+
+        <!-- 做什么 · 编辑候选 -->
+        <div class="page" id="p-cook-food-edit">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="cook-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">编辑候选</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card">
+              <div class="field"><label class="field-label">名称</label><input class="field-input" value="番茄炒蛋" /></div>
+              <div class="field"><label class="field-label">类型</label><div class="tag-row cook"><button type="button" class="tag-pick on">家常菜</button><button type="button" class="tag-pick">硬菜</button><button type="button" class="tag-pick">快手</button><button type="button" class="tag-pick">汤羹</button><button type="button" class="tag-pick">其他</button></div><button type="button" class="field-link cook" data-go="cook-types">管理分类</button></div>
+              <div class="field"><label class="field-label">备注</label><input class="field-input" value="约 15 分钟" /></div>
+            </div>
+            <button type="button" class="btn-save cook" data-go="cook-foods">保存</button>
+            <button type="button" class="btn-del" data-go="cook-modal-food">删除候选</button>
+          </div>
+        </div>
+
+        <!-- 做什么 · 分类管理 -->
+        <div class="page" id="p-cook-types">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="cook-foods" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">做菜分类</div><span class="topgap"></span></header>
+          <div class="bar bar-end cook"><button type="button" class="add" data-go="cook-type-add">新增分类</button></div>
+          <div class="scroll list-top">
+            <div class="row row-tap" data-go="cook-type-edit"><div class="row-main"><div class="row-title">家常菜</div></div><div class="row-ops"><button type="button" class="link red" data-go="cook-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="cook-type-edit"><div class="row-main"><div class="row-title">硬菜</div></div><div class="row-ops"><button type="button" class="link red" data-go="cook-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="cook-type-edit"><div class="row-main"><div class="row-title">快手</div></div><div class="row-ops"><button type="button" class="link red" data-go="cook-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="cook-type-edit"><div class="row-main"><div class="row-title">汤羹</div></div><div class="row-ops"><button type="button" class="link red" data-go="cook-modal-type">删除</button></div></div>
+            <div class="row row-tap" data-go="cook-type-edit"><div class="row-main"><div class="row-title">其他</div></div><div class="row-ops"><button type="button" class="link red" data-go="cook-modal-type">删除</button></div></div>
+          </div>
+        </div>
+
+        <!-- 做什么 · 新增/编辑分类 -->
+        <div class="page" id="p-cook-type-add">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="cook-types" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">新增分类</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card"><div class="field"><label class="field-label">分类名称</label><input class="field-input" placeholder="如：家常菜" value="" /></div></div>
+            <button type="button" class="btn-save cook" data-go="cook-types">保存</button>
+          </div>
+        </div>
+        <div class="page" id="p-cook-type-edit">
+          <header class="topbar"><button type="button" class="topbtn back" data-go="cook-types" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button><div class="toptitle">编辑分类</div><span class="topgap"></span></header>
+          <div class="scroll form-scroll">
+            <div class="form-card"><div class="field"><label class="field-label">分类名称</label><input class="field-input" value="家常菜" /></div></div>
+            <button type="button" class="btn-save cook" data-go="cook-types">保存</button>
+          </div>
+        </div>
+
+        <!-- 做什么 · 弹窗 -->
+        <div class="page modal-page" id="p-cook-modal-food">
+          <div class="modal-layer">
+            <div class="modal-box">
+              <div class="modal-title">删除候选</div>
+              <p class="modal-text">确定删除？相关记录也会删除</p>
+              <div class="modal-actions"><button type="button" class="modal-btn" data-go="cook-foods">取消</button><button type="button" class="modal-btn danger cook" data-go="cook-foods">确定</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="page modal-page" id="p-cook-modal-type">
+          <div class="modal-layer">
+            <div class="modal-box">
+              <div class="modal-title">删除分类</div>
+              <p class="modal-text">确定删除「家常菜」？分类下有候选时无法删除</p>
+              <div class="modal-actions"><button type="button" class="modal-btn" data-go="cook-types">取消</button><button type="button" class="modal-btn danger cook" data-go="cook-types">确定</button></div>
+            </div>
+          </div>
         </div>
 
         <!-- 记账首页 -->
